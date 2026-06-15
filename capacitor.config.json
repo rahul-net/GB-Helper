@@ -1,0 +1,5 @@
+{
+  "appId": "com.rahul.gbhelper",
+  "appName": "GB Helper PRO",
+  "webDir": "npx cap init \"GB Helper PRO\" \"com.rahul.gbhelper\""
+}

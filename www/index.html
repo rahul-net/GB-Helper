@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#064e3b" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>গ্রামীণব্যাংক হেল্পার — GB Helper PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"GB Helper PRO","short_name":"GB Helper","start_url":".","display":"standalone","background_color":"%23064e3b","theme_color":"%23064e3b","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%23059669%22/><text x=%2296%22 y=%22122%22 font-size=%22110%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22>৳</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}' />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Firebase Module Initialization -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth, setPersistence, browserLocalPersistence,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, setDoc, deleteDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyDs8FiJjQ6WR11bgZq6wSc2gmYIDVqkdDA",
+    authDomain: "shopping-cart-3a55d.firebaseapp.com",
+    projectId: "shopping-cart-3a55d",
+    storageBucket: "shopping-cart-3a55d.firebasestorage.app",
+    messagingSenderId: "63889015712",
+    appId: "1:63889015712:web:b5d8b8dcfa47c94fb81ac5"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const fsDb = getFirestore(app);
+  
+  // Enforce local session persistence for returning users (Auto Login)
+  setPersistence(auth, browserLocalPersistence).catch(()=>{});
+  
+  // Expose to window for the vanilla JS logic
+  window.__fb = { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, updateProfile };
+  window.__fsDb = fsDb;
+  window.__firestore = { doc, setDoc, deleteDoc, getDocs, collection, onSnapshot };
+  window.dispatchEvent(new Event('fb-ready'));
+</script>
+
+<style>
+/* ====== Theme & Core Variables ====== */
+:root{
+  --bg:#02120c;--bg-2:#03190f;--surface:#0a1f17;--surface-2:#0d2a1e;
+  --card:rgba(16,40,30,.72);--card-border:rgba(52,211,153,.14);
+  --emerald:#10b981;--emerald-2:#34d399;--emerald-3:#059669;--emerald-glow:rgba(16,185,129,.35);
+  --gold:#fbbf24;--rose:#f43f5e;--sky:#38bdf8;--violet:#a78bfa;
+  --text:#ecfdf5;--text-2:#a7f3d0;--muted:#6ee7b7aa;--dim:#5eead488;
+  --radius:18px;--radius-lg:24px;--radius-sm:12px;
+  --shadow:0 10px 40px -10px rgba(0,0,0,.6),0 0 0 1px rgba(52,211,153,.06);
+  --shadow-glow:0 10px 40px -10px var(--emerald-glow);
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+body.theme-light{
+  --bg:#f1f5f3;--bg-2:#e8f0ec;--surface:#ffffff;--surface-2:#f7fbf9;
+  --card:rgba(255,255,255,.95);--card-border:rgba(16,185,129,.18);
+  --text:#0b2e22;--text-2:#0f5132;--muted:#476b5f;--dim:#6b8a7e;
+  --shadow:0 6px 24px -8px rgba(0,40,20,.15),0 0 0 1px rgba(16,185,129,.08);
+}
+body.theme-light{background:
+  radial-gradient(900px 500px at 10% -10%,rgba(16,185,129,.10),transparent 60%),
+  radial-gradient(700px 400px at 110% 10%,rgba(56,189,248,.08),transparent 60%),
+  linear-gradient(180deg,#f1f5f3 0%,#e8f0ec 100%);
+  background-attachment:fixed;
+}
+body.theme-light input,body.theme-light select,body.theme-light textarea{background:#fff;color:var(--text);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Hind Siliguri','Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
+body{background:
+  radial-gradient(1200px 600px at 10% -10%,rgba(16,185,129,.18),transparent 60%),
+  radial-gradient(900px 500px at 110% 10%,rgba(56,189,248,.10),transparent 60%),
+  radial-gradient(800px 600px at 50% 120%,rgba(167,139,250,.10),transparent 60%),
+  linear-gradient(180deg,#02120c 0%,#03190f 100%);
+  background-attachment:fixed;
+}
+button,input,select,textarea{font-family:inherit;color:inherit;}
+button{cursor:pointer;border:none;background:none;}
+input,select,textarea{
+  width:100%;background:rgba(2,18,12,.6);border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);padding:13px 14px;color:var(--text);font-size:15px;outline:none;
+  transition:border .2s,box-shadow .2s,background .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--emerald-2);box-shadow:0 0 0 3px rgba(52,211,153,.15);background:rgba(2,18,12,.85);}
+label{display:block;font-size:12.5px;color:var(--text-2);margin-bottom:6px;font-weight:500;letter-spacing:.2px;}
+.field{margin-bottom:14px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media (max-width:380px){.row,.row-3{grid-template-columns:1fr;}}
+
+/* ====== App shell ====== */
+#app{min-height:100vh;display:flex;flex-direction:column;padding-top:var(--safe-top);}
+.screen{display:none;flex:1;flex-direction:column;animation:fade .25s ease;}
+.screen.active{display:flex;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ====== Header ====== */
+.appbar{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  background:linear-gradient(180deg,rgba(3,25,15,.85),rgba(3,25,15,.55));
+  border-bottom:1px solid rgba(52,211,153,.10);
+  padding:14px 16px calc(14px) 16px;padding-top:calc(14px + var(--safe-top));
+  display:flex;align-items:center;gap:12px;
+}
+.appbar .brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.logo{
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#022c1c;font-weight:800;
+  background:linear-gradient(135deg,#34d399,#10b981 60%,#059669);
+  box-shadow:0 8px 20px -6px var(--emerald-glow),inset 0 -2px 4px rgba(0,0,0,.2);
+  font-size:18px;
+}
+.brand-title{font-weight:700;font-size:15.5px;line-height:1.1;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:rgba(16,40,30,.6);border:1px solid var(--card-border);color:var(--text-2);
+  transition:transform .15s,background .15s;
+}
+.icon-btn:active{transform:scale(.92);}
+
+/* ====== Sync Dot Styles ====== */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;margin-left:6px;transition:background .3s, box-shadow .3s;}
+.sync-dot.ok{background:var(--emerald-2);box-shadow:0 0 8px var(--emerald-2);}
+.sync-dot.err{background:var(--rose);}
+.sync-dot.busy{background:var(--gold);animation:pulse 1s infinite;}
+@keyframes pulse{50%{opacity:.3;}}
+
+/* ====== Content ====== */
+.content{flex:1;padding:14px 14px 100px 14px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.section-title{font-size:13px;color:var(--text-2);text-transform:uppercase;letter-spacing:1.5px;margin:18px 4px 10px;font-weight:600;}
+.card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.card+.card{margin-top:12px;}
+
+/* ====== Buttons ====== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 18px;border-radius:14px;font-weight:600;font-size:15px;
+  background:rgba(16,40,30,.6);border:1px solid var(--card-border);color:var(--text);
+  transition:transform .1s,filter .15s,box-shadow .15s;width:100%;
+}
+.btn:active{transform:scale(.97);}
+.btn.primary{
+  background:linear-gradient(135deg,#34d399,#10b981);color:#022c1c;border:none;
+  box-shadow:0 10px 25px -10px var(--emerald-glow);
+}
+.btn.primary:active{filter:brightness(1.08);}
+.btn.danger{background:linear-gradient(135deg,#fb7185,#f43f5e);color:#fff;border:none;}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px;width:auto;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ====== Splash ====== */
+#splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 40%,#064e3b,#02120c);transition:opacity .4s,visibility .4s;}
+#splash.hide{opacity:0;visibility:hidden;}
+.splash-logo{width:120px;height:120px;border-radius:32px;display:grid;place-items:center;font-size:54px;color:#022c1c;font-weight:800;
+  background:linear-gradient(135deg,#a7f3d0,#10b981 60%,#047857);
+  box-shadow:0 30px 80px -10px var(--emerald-glow);animation:floaty 3s ease-in-out infinite;}
+@keyframes floaty{50%{transform:translateY(-8px);}}
+.splash-title{margin-top:22px;font-size:22px;font-weight:700;text-align:center;}
+.splash-sub{color:var(--muted);font-size:13px;margin-top:6px;text-align:center;}
+.splash-bar{margin-top:24px;width:160px;height:3px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.splash-bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,#34d399,#10b981);animation:slide 1.4s infinite;}
+@keyframes slide{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
+
+/* ====== PIN screen ====== */
+.pin-wrap{display:flex;flex-direction:column;align-items:center;padding:40px 20px;max-width:420px;margin:0 auto;width:100%;}
+.pin-dots{display:flex;gap:14px;margin:26px 0 30px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--card-border);transition:all .15s;}
+.pin-dot.fill{background:linear-gradient(135deg,#34d399,#10b981);border-color:#10b981;box-shadow:0 0 12px var(--emerald-glow);transform:scale(1.1);}
+.pin-dot.err{background:var(--rose);border-color:var(--rose);animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:300px;}
+.pin-key{
+  aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:600;
+  background:rgba(16,40,30,.6);border:1px solid var(--card-border);color:var(--text);
+  transition:transform .1s,background .15s;
+}
+.pin-key:active{transform:scale(.92);background:rgba(16,185,129,.2);}
+.pin-key.fn{font-size:14px;color:var(--text-2);}
+.pin-msg{min-height:22px;font-size:13px;color:var(--text-2);margin-top:10px;text-align:center;}
+.pin-msg.err{color:var(--rose);}
+
+/* ====== Bottom nav ====== */
+.bottom-nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  padding:8px 8px calc(8px + var(--safe-bot)) 8px;
+  display:none;grid-template-columns:repeat(5,1fr);gap:4px;
+  background:linear-gradient(180deg,rgba(3,25,15,.7),rgba(3,25,15,.95));
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-top:1px solid rgba(52,211,153,.12);
+}
+.bottom-nav.show{display:grid;}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:8px 4px;border-radius:12px;color:var(--muted);font-size:10.5px;font-weight:500;
+  transition:color .15s,background .15s;
+}
+.nav-item.active{color:var(--emerald-2);background:rgba(16,185,129,.10);}
+.nav-item svg{width:22px;height:22px;}
+
+/* ====== KPIs & Lists ====== */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.kpi{
+  border-radius:var(--radius);padding:14px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(16,185,129,.10),rgba(16,185,129,.02));
+  border:1px solid rgba(52,211,153,.18);
+}
+.kpi.alt{background:linear-gradient(135deg,rgba(56,189,248,.10),rgba(56,189,248,.02));border-color:rgba(56,189,248,.18);}
+.kpi.warn{background:linear-gradient(135deg,rgba(251,191,36,.10),rgba(251,191,36,.02));border-color:rgba(251,191,36,.18);}
+.kpi.rose{background:linear-gradient(135deg,rgba(244,63,94,.10),rgba(244,63,94,.02));border-color:rgba(244,63,94,.18);}
+.kpi .lbl{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;}
+.kpi .val{font-size:20px;font-weight:700;margin-top:6px;letter-spacing:.2px;font-family:'Inter',sans-serif;}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.kpi .ico{position:absolute;top:10px;right:10px;opacity:.25;font-size:22px;}
+
+.list-item{
+  display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;
+  background:rgba(8,28,20,.55);border:1px solid rgba(52,211,153,.08);margin-bottom:8px;
+  transition:transform .1s;
+}
+.list-item:active{transform:scale(.99);}
+.avatar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#022c1c;
+  background:linear-gradient(135deg,#a7f3d0,#34d399);flex:0 0 42px;font-size:15px;}
+.list-main{flex:1;min-width:0;}
+.list-title{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-side{text-align:right;flex:0 0 auto;}
+.list-side .amt{font-weight:700;font-size:14px;}
+.list-side .lbl{font-size:11px;color:var(--muted);}
+
+/* ====== Tabs / pills ====== */
+.pills{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none;}
+.pills::-webkit-scrollbar{display:none;}
+.pill{
+  padding:8px 14px;border-radius:99px;font-size:12.5px;font-weight:500;
+  background:rgba(16,40,30,.55);border:1px solid var(--card-border);color:var(--text-2);white-space:nowrap;
+}
+.pill.active{background:linear-gradient(135deg,#34d399,#10b981);color:#022c1c;border-color:transparent;}
+
+/* ====== Modal / sheet ====== */
+.sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.sheet-mask.show{display:flex;animation:fade .2s;}
+.sheet{
+  width:100%;max-width:560px;background:linear-gradient(180deg,#0a1f17,#04150d);
+  border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid var(--card-border);border-bottom:none;
+  padding:18px 16px calc(18px + var(--safe-bot)) 16px;max-height:90vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:none;opacity:1;}}
+.sheet h3{margin:0 0 12px;font-size:17px;}
+.sheet-grab{width:42px;height:4px;background:rgba(255,255,255,.15);border-radius:99px;margin:0 auto 14px;}
+
+/* ====== Toast ====== */
+#toast-wrap{position:fixed;top:calc(var(--safe-top) + 12px);left:0;right:0;z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
+.toast{
+  background:rgba(4,21,13,.95);border:1px solid var(--card-border);color:var(--text);
+  padding:11px 18px;border-radius:14px;font-size:13.5px;box-shadow:var(--shadow);max-width:90%;
+  animation:tin .25s;
+}
+.toast.ok{border-color:rgba(52,211,153,.4);}
+.toast.err{border-color:rgba(244,63,94,.5);color:#fecaca;}
+@keyframes tin{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
+
+/* ====== Misc UI Elements ====== */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .ico{font-size:48px;opacity:.4;margin-bottom:10px;}
+.divider{height:1px;background:var(--card-border);margin:14px 0;}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.2px;}
+.badge.ok{background:rgba(16,185,129,.18);color:var(--emerald-2);}
+.badge.warn{background:rgba(251,191,36,.18);color:var(--gold);}
+.badge.err{background:rgba(244,63,94,.18);color:#fda4af;}
+.badge.dim{background:rgba(148,163,184,.15);color:#cbd5e1;}
+.kbd{font-family:'Inter',monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 6px;border-radius:6px;}
+.muted{color:var(--muted);}
+.center{text-align:center;}
+.right{text-align:right;}
+.h1{font-size:22px;font-weight:700;margin:4px 0 8px;}
+.h2{font-size:16px;font-weight:600;margin:0 0 8px;}
+.fab{
+  position:fixed;right:18px;bottom:calc(80px + var(--safe-bot));z-index:55;
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#022c1c;font-size:28px;
+  background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 14px 30px -8px var(--emerald-glow);
+}
+.fab:active{transform:scale(.94);}
+.search-bar{position:relative;}
+.search-bar input{padding-left:38px;}
+.search-bar svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);}
+.cash-row{display:grid;grid-template-columns:80px 1fr 110px;gap:10px;align-items:center;margin-bottom:8px;}
+.cash-row .den{font-weight:700;color:var(--gold);}
+.cash-row input{padding:9px 10px;text-align:center;}
+.cash-row .sub{text-align:right;font-weight:600;font-family:'Inter';}
+table.rep{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.rep th,table.rep td{padding:8px 6px;border-bottom:1px solid var(--card-border);text-align:left;}
+table.rep th{color:var(--text-2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+table.rep td.r,table.rep th.r{text-align:right;font-family:'Inter';}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tx-pos{color:var(--emerald-2);}
+.tx-neg{color:#fda4af;}
+.chart-wrap{position:relative;height:180px;}
+.tag-day{display:inline-block;padding:2px 8px;font-size:10.5px;border-radius:6px;background:rgba(56,189,248,.15);color:#7dd3fc;font-weight:600;}
+
+/* Receipt printing */
+.receipt{background:#fff;color:#111;padding:18px;border-radius:12px;font-family:'Hind Siliguri',sans-serif;max-width:340px;margin:0 auto;}
+.receipt h3{margin:0 0 4px;text-align:center;}
+.receipt .small{font-size:11px;color:#555;text-align:center;}
+.receipt table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
+.receipt table td{padding:4px 0;border-bottom:1px dashed #ccc;}
+.receipt table td:last-child{text-align:right;font-weight:600;}
+.receipt .total{font-weight:700;font-size:16px;border-top:2px solid #111;border-bottom:2px solid #111;padding:6px 0;margin-top:8px;display:flex;justify-content:space-between;}
+.receipt .qr{display:flex;justify-content:center;margin-top:12px;}
+.receipt .sign{display:flex;justify-content:space-between;margin-top:30px;font-size:11px;color:#444;}
+
+@media print{
+  body *{visibility:hidden;}
+  #print-area, #print-area *{visibility:visible;}
+  #print-area{position:absolute;left:0;top:0;width:100%;background:#fff;color:#000;padding:10px;}
+}
+
+/* ================= FIREBASE AUTH OVERLAY ================= */
+#fbAuthOverlay{position:fixed;inset:0;z-index:99999;background:
+  radial-gradient(900px 500px at 10% -10%,rgba(16,185,129,.20),transparent 60%),
+  radial-gradient(700px 500px at 110% 10%,rgba(56,189,248,.10),transparent 60%),
+  linear-gradient(180deg,#02120c,#03190f);
+  color:#ecfdf5;display:none;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) 18px calc(24px + env(safe-area-inset-bottom,0px));
+  font-family:'Hind Siliguri','Inter',system-ui,sans-serif;overflow-y:auto;}
+#fbAuthOverlay.on{display:flex;}
+#fbAuthOverlay .fb-card{width:100%;max-width:420px;background:rgba(16,40,30,.72);
+  border:1px solid rgba(52,211,153,.18);border-radius:24px;padding:32px 26px;
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.7),0 0 0 1px rgba(52,211,153,.06);
+  backdrop-filter:blur(20px);}
+#fbAuthOverlay .fb-logo{width:64px;height:64px;border-radius:18px;margin:0 auto 16px;
+  background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;
+  justify-content:center;font-size:32px;color:#fff;font-weight:700;
+  box-shadow:0 10px 30px -10px rgba(16,185,129,.6);}
+#fbAuthOverlay h2{margin:0 0 4px;text-align:center;font-size:24px;font-weight:700;color:#ecfdf5;}
+#fbAuthOverlay .fb-sub{text-align:center;color:#6ee7b7aa;font-size:13.5px;margin-bottom:26px;}
+#fbAuthOverlay label{display:block;font-size:13px;color:#a7f3d0;margin:14px 0 8px;font-weight:500;}
+#fbAuthOverlay input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(52,211,153,.18);
+  border-radius:14px;padding:14px 16px;color:#ecfdf5;font-size:15px;font-family:inherit;outline:none;
+  transition:border-color .15s, background .2s;box-sizing:border-box;}
+#fbAuthOverlay input:focus{border-color:#10b981;background:rgba(255,255,255,.08);}
+#fbAuthOverlay .fb-pw{position:relative;}
+#fbAuthOverlay .fb-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:transparent;border:none;color:#6ee7b7;cursor:pointer;padding:6px 10px;font-size:13px;font-weight:600;}
+#fbAuthOverlay .fb-btn{width:100%;margin-top:22px;padding:15px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#34d399,#10b981);color:#022c1c;font-weight:700;font-size:15.5px;
+  cursor:pointer;font-family:inherit;box-shadow:0 10px 30px -10px rgba(16,185,129,.5);transition:transform .1s;}
+#fbAuthOverlay .fb-btn:active{transform:scale(.97);}
+#fbAuthOverlay .fb-btn:disabled{opacity:.6;cursor:wait;}
+#fbAuthOverlay .fb-ghost{width:100%;margin-top:12px;padding:14px;border-radius:14px;
+  background:transparent;border:1px solid rgba(52,211,153,.25);color:#a7f3d0;font-weight:600;
+  cursor:pointer;font-family:inherit;font-size:14px;transition:background .2s;}
+#fbAuthOverlay .fb-ghost:active{background:rgba(52,211,153,.1);}
+#fbAuthOverlay .fb-link{display:block;text-align:center;margin-top:18px;background:transparent;
+  border:none;color:#34d399;font-size:13.5px;cursor:pointer;font-family:inherit;text-decoration:none;font-weight:500;}
+#fbAuthOverlay .fb-link:hover{text-decoration:underline;}
+#fbAuthOverlay .fb-msg{min-height:20px;margin-top:12px;font-size:13px;text-align:center;font-weight:500;}
+#fbAuthOverlay .fb-msg.err{color:#fda4af;}
+#fbAuthOverlay .fb-msg.ok{color:#86efac;}
+#fbAuthOverlay .fb-screen{display:none;animation:fade .3s ease;}
+#fbAuthOverlay .fb-screen.on{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ================== Splash ================== -->
+<div id="splash">
+  <div style="text-align:center;">
+    <div class="splash-logo">৳</div>
+    <div class="splash-title">গ্রামীণব্যাংক হেল্পার</div>
+    <div class="splash-sub">GB Helper PRO • সঞ্চয় ও ঋণ ব্যবস্থাপনা</div>
+    <div class="splash-bar"><i></i></div>
+  </div>
+</div>
+
+<!-- ================== FIREBASE AUTH OVERLAY ================== -->
+<div id="fbAuthOverlay" role="dialog" aria-label="Authentication">
+  <div class="fb-card">
+    <div class="fb-logo">৳</div>
+
+    <!-- LOGIN -->
+    <div class="fb-screen on" id="fbScrLogin">
+      <h2>স্বাগতম</h2>
+      <div class="fb-sub">GB Helper PRO • সুরক্ষিত লগইন</div>
+      <label>ইমেইল</label>
+      <input type="email" id="fbLoginEmail" autocomplete="email" placeholder="you@example.com">
+      <label>পাসওয়ার্ড</label>
+      <div class="fb-pw">
+        <input type="password" id="fbLoginPass" autocomplete="current-password" placeholder="••••••••">
+        <button type="button" class="fb-eye" data-eye="fbLoginPass">দেখান</button>
+      </div>
+      <div class="fb-msg" id="fbLoginMsg"></div>
+      <button class="fb-btn" id="fbLoginBtn">লগইন করুন</button>
+      <button class="fb-link" data-go="fbScrForgot">পাসওয়ার্ড ভুলে গেছেন?</button>
+      <div class="divider" style="margin:20px 0;"></div>
+      <button class="fb-ghost" data-go="fbScrReg">নতুন অ্যাকাউন্ট তৈরি করুন</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="fb-screen" id="fbScrReg">
+      <h2>অ্যাকাউন্ট তৈরি করুন</h2>
+      <div class="fb-sub">কয়েক সেকেন্ডে শুরু করুন</div>
+      <label>পূর্ণ নাম</label>
+      <input type="text" id="fbRegName" autocomplete="name" placeholder="আপনার নাম">
+      <label>ইমেইল</label>
+      <input type="email" id="fbRegEmail" autocomplete="email" placeholder="you@example.com">
+      <label>পাসওয়ার্ড</label>
+      <div class="fb-pw">
+        <input type="password" id="fbRegPass" autocomplete="new-password" placeholder="কমপক্ষে ৬ অক্ষর">
+        <button type="button" class="fb-eye" data-eye="fbRegPass">দেখান</button>
+      </div>
+      <label>পাসওয়ার্ড নিশ্চিত করুন</label>
+      <div class="fb-pw">
+        <input type="password" id="fbRegPass2" autocomplete="new-password" placeholder="পুনরায় দিন">
+        <button type="button" class="fb-eye" data-eye="fbRegPass2">দেখান</button>
+      </div>
+      <div class="fb-msg" id="fbRegMsg"></div>
+      <button class="fb-btn" id="fbRegBtn">অ্যাকাউন্ট তৈরি করুন</button>
+      <button class="fb-link" data-go="fbScrLogin">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</button>
+    </div>
+
+    <!-- FORGOT -->
+    <div class="fb-screen" id="fbScrForgot">
+      <h2>পাসওয়ার্ড রিসেট</h2>
+      <div class="fb-sub">রিসেট লিংক ইমেইলে পাঠানো হবে</div>
+      <label>ইমেইল</label>
+      <input type="email" id="fbFpEmail" autocomplete="email" placeholder="you@example.com">
+      <div class="fb-msg" id="fbFpMsg"></div>
+      <button class="fb-btn" id="fbFpBtn">রিসেট লিংক পাঠান</button>
+      <button class="fb-link" data-go="fbScrLogin">লগইন স্ক্রিনে ফিরে যান</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <!-- ================== PIN SETUP ================== -->
+  <!-- PIN is ONLY shown for FIRST-TIME users (after registering), or triggered manually from settings -->
+  <section id="screen-pin" class="screen">
+    <div class="content">
+      <div class="pin-wrap">
+        <div class="logo" style="width:60px;height:60px;border-radius:18px;font-size:26px;">৳</div>
+        <div class="h1" id="pinTitle" style="margin-top:14px;">পিন দিন</div>
+        <div class="muted" id="pinSub" style="text-align:center;font-size:13px;">আপনার ৪–৬ সংখ্যার পিন দিন</div>
+
+        <div class="pin-dots" id="pinDots"></div>
+        <div class="pin-msg" id="pinMsg"></div>
+
+        <div class="pin-pad" id="pinPad"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== APP MAIN ================== -->
+  <header class="appbar" id="appbar" style="display:none;">
+    <div class="brand">
+      <div class="logo">৳</div>
+      <div style="min-width:0;">
+        <div class="brand-title">গ্রামীণব্যাংক হেল্পার</div>
+        <div class="brand-sub">GB Helper PRO <span id="syncDot" class="sync-dot"></span></div>
+      </div>
+    </div>
+    <button class="icon-btn" id="btnTheme" title="থিম পরিবর্তন" onclick="toggleTheme()">
+      <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="icon-btn" id="btnLock" title="লগআউট" onclick="handleLogout()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+    </button>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="screen-dash" class="screen">
+    <div class="content">
+      <div class="card" style="background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(5,150,105,.05));border-color:rgba(52,211,153,.25);">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="muted" style="font-size:12px;">আজকের সংগ্রহ</div>
+            <div id="todayCollection" style="font-size:30px;font-weight:800;font-family:'Inter';margin-top:4px;">৳ ০</div>
+            <div class="muted" style="font-size:11.5px;margin-top:2px;" id="todayDate"></div>
+          </div>
+          <div style="text-align:right;">
+            <div class="badge ok" id="todayPctBadge">0%</div>
+            <div class="muted" style="font-size:11px;margin-top:6px;">প্রত্যাশিত<br><b id="todayExpected" style="color:var(--text);font-family:'Inter';">৳ ০</b></div>
+          </div>
+        </div>
+        <div style="height:8px;background:rgba(0,0,0,.3);border-radius:99px;margin-top:12px;overflow:hidden;">
+          <div id="todayBar" style="height:100%;width:0%;background:linear-gradient(90deg,#34d399,#10b981);transition:width .4s;"></div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="margin-top:12px;">
+        <div class="kpi"><div class="ico">👥</div><div class="lbl">সক্রিয় সদস্য</div><div class="val" id="kActive">0</div><div class="sub" id="kInactive">নিষ্ক্রিয়: 0</div></div>
+        <div class="kpi alt"><div class="ico">💰</div><div class="lbl">মোট সঞ্চয়</div><div class="val" id="kSavings">৳ ০</div><div class="sub">সকল সদস্য</div></div>
+        <div class="kpi warn"><div class="ico">📋</div><div class="lbl">বকেয়া ঋণ</div><div class="val" id="kLoan">৳ ০</div><div class="sub" id="kLoanCount">0 ঋণ</div></div>
+        <div class="kpi rose"><div class="ico">⚠️</div><div class="lbl">ওভারডিউ</div><div class="val" id="kOverdue">৳ ০</div><div class="sub" id="kOverdueCount">0 জন</div></div>
+      </div>
+
+      <div class="section-title">সাপ্তাহিক সংগ্রহ</div>
+      <div class="card"><div class="chart-wrap"><canvas id="chartWeek"></canvas></div></div>
+
+      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>সাম্প্রতিক লেনদেন</span>
+        <a class="muted" style="font-size:11px;text-transform:none;letter-spacing:0;" onclick="nav('hist')">সব দেখুন →</a>
+      </div>
+      <div id="recentTx"></div>
+    </div>
+  </section>
+
+  <!-- MEMBERS -->
+  <section id="screen-mem" class="screen">
+    <div class="content">
+      <div class="h1">সদস্য তালিকা</div>
+      <div class="search-bar field">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="memSearch" placeholder="নাম, ফোন বা আইডি দিয়ে খুঁজুন..." />
+      </div>
+      <div class="pills" id="dayPills"></div>
+      <div id="memList"></div>
+    </div>
+    <button class="fab" onclick="openAddMember()">+</button>
+  </section>
+
+  <!-- COLLECTION -->
+  <section id="screen-col" class="screen">
+    <div class="content">
+      <div class="h1">দৈনিক সংগ্রহ</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <div class="muted" style="font-size:12px;">আজ <span id="colDate"></span></div>
+            <div style="font-size:18px;font-weight:700;margin-top:2px;" id="colDayLabel">—</div>
+          </div>
+          <select id="colDaySel" style="width:auto;min-width:120px;">
+            <option value="auto">আজকের দিন</option>
+            <option>রবিবার</option><option>সোমবার</option>
+            <option>মঙ্গলবার</option><option>বুধবার</option><option>বৃহস্পতিবার</option>
+          </select>
+        </div>
+        <div class="row-3" style="margin-top:12px;">
+          <div class="kpi"><div class="lbl">সংগৃহীত</div><div class="val" id="colCollected" style="font-size:16px;">৳ ০</div></div>
+          <div class="kpi warn"><div class="lbl">বাকি</div><div class="val" id="colPending" style="font-size:16px;">৳ ০</div></div>
+          <div class="kpi alt"><div class="lbl">সম্পন্ন</div><div class="val" id="colDone" style="font-size:16px;">0/0</div></div>
+        </div>
+      </div>
+      <div id="colList" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="screen-tools" class="screen">
+    <div class="content">
+      <div class="h1">টুলস</div>
+
+      <div class="section-title">ক্যালকুলেটর</div>
+      <div class="kpi-grid">
+        <button class="card" style="text-align:left;" onclick="openCalc('loan')">📊<div style="font-weight:600;margin-top:6px;">ঋণ ক্যাল.</div><div class="muted" style="font-size:11px;">EMI / সুদ</div></button>
+        <button class="card alt" style="text-align:left;" onclick="openCalc('dps')">💎<div style="font-weight:600;margin-top:6px;">DPS</div><div class="muted" style="font-size:11px;">মাসিক সঞ্চয়</div></button>
+        <button class="card" style="text-align:left;" onclick="openCalc('fdr')">🏦<div style="font-weight:600;margin-top:6px;">FDR</div><div class="muted" style="font-size:11px;">স্থায়ী আমানত</div></button>
+        <button class="card warn" style="text-align:left;" onclick="openCalc('cash')">💵<div style="font-weight:600;margin-top:6px;">ক্যাশ কাউন্টার</div><div class="muted" style="font-size:11px;">টাকা গণনা</div></button>
+      </div>
+
+      <div class="section-title">রিপোর্ট</div>
+      <div class="card" style="padding:8px;">
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('daily')">
+          <div class="avatar" style="background:linear-gradient(135deg,#34d399,#059669);">📅</div>
+          <div class="list-main"><div class="list-title">দৈনিক সংগ্রহ রিপোর্ট</div><div class="list-sub">আজকের সমস্ত আদায়</div></div>
+          <div style="color:var(--muted);">›</div>
+        </button>
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('weekly')">
+          <div class="avatar" style="background:linear-gradient(135deg,#38bdf8,#0284c7);">📊</div>
+          <div class="list-main"><div class="list-title">সাপ্তাহিক রিপোর্ট</div><div class="list-sub">গত ৭ দিন</div></div><div style="color:var(--muted);">›</div>
+        </button>
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('monthly')">
+          <div class="avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">📈</div>
+          <div class="list-main"><div class="list-title">মাসিক রিপোর্ট</div><div class="list-sub">চলতি মাস</div></div><div style="color:var(--muted);">›</div>
+        </button>
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('overdue')">
+          <div class="avatar" style="background:linear-gradient(135deg,#fb7185,#e11d48);">⚠️</div>
+          <div class="list-main"><div class="list-title">ওভারডিউ রিপোর্ট</div><div class="list-sub">বকেয়া সদস্য</div></div><div style="color:var(--muted);">›</div>
+        </button>
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('ledger')">
+          <div class="avatar" style="background:linear-gradient(135deg,#fbbf24,#d97706);">📒</div>
+          <div class="list-main"><div class="list-title">লেনদেন লেজার</div><div class="list-sub">পূর্ণ ইতিহাস</div></div><div style="color:var(--muted);">›</div>
+        </button>
+        <button class="list-item" style="width:100%;background:transparent;border:none;" onclick="report('audit')">
+          <div class="avatar" style="background:linear-gradient(135deg,#94a3b8,#475569);">🛡️</div>
+          <div class="list-main"><div class="list-title">অডিট লগ</div><div class="list-sub">সকল কার্যক্রম</div></div><div style="color:var(--muted);">›</div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-set" class="screen">
+    <div class="content">
+      <div class="h1">সেটিংস</div>
+
+      <div class="section-title">Firebase ক্লাউড সিঙ্ক</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <div style="font-weight:600;">অটোমেটিক সিঙ্ক</div>
+            <div class="muted" style="font-size:12px;margin-top:2px;">লাইভ রিয়েল-টাইম কানেক্টেড</div>
+          </div>
+          <div class="badge ok">সক্রিয়</div>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:12px;" id="fsQueueStatus">কিউ: 0 পেন্ডিং</div>
+      </div>
+
+      <div class="section-title">ক্লাউড ব্যাকআপ</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <div style="font-weight:600;">Google Drive সিঙ্ক</div>
+            <div class="muted" style="font-size:12px;margin-top:2px;" id="gdStatus">সংযুক্ত নয়</div>
+          </div>
+          <button class="btn primary sm" id="gdBtn" onclick="gdToggle()">সংযুক্ত করুন</button>
+        </div>
+        <div class="divider"></div>
+        <div class="btn-row">
+          <button class="btn" onclick="gdBackupNow()">⬆️ ব্যাকআপ</button>
+          <button class="btn" onclick="gdRestore()">⬇️ পুনরুদ্ধার</button>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:8px;" id="gdLast">শেষ সিঙ্ক: কখনো না</div>
+      </div>
+
+      <div class="section-title">নিরাপত্তা (PIN)</div>
+      <div class="card">
+        <button class="list-item" style="width:100%;background:transparent;border:none;padding:10px 0;" onclick="initiateChangePin()">
+          <div class="avatar" style="background:linear-gradient(135deg,#34d399,#059669);">🔑</div>
+          <div class="list-main"><div class="list-title">পিন পরিবর্তন</div><div class="list-sub">৪–৬ সংখ্যা</div></div><div style="color:var(--muted);">›</div>
+        </button>
+        <div class="muted" style="font-size:11px;margin-top:6px;text-align:center;">
+            পিন শুধুমাত্র সংবেদনশীল কাজের (যেমন ডেটা মোছা বা পুনরুদ্ধার) জন্য ব্যবহৃত হয়। এটি আপনার অ্যাকাউন্টের জন্য নির্দিষ্ট।
+        </div>
+      </div>
+
+      <div class="section-title">ডেটা</div>
+      <div class="card">
+        <div class="btn-row">
+          <button class="btn" onclick="exportJSON()">📤 এক্সপোর্ট JSON</button>
+          <button class="btn" onclick="document.getElementById('fileImport').click()">📥 ইম্পোর্ট JSON</button>
+        </div>
+        <input id="fileImport" type="file" accept="application/json" style="display:none;" onchange="importJSON(this)" />
+        <div class="divider"></div>
+        <div class="btn-row">
+          <button class="btn" onclick="exportFullPDF()">🧾 সম্পূর্ণ PDF</button>
+          <button class="btn danger" onclick="resetApp()">🗑️ রিসেট</button>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:10px;" id="storageInfo">স্টোরেজ: হিসাব করা হচ্ছে…</div>
+      </div>
+
+      <div class="section-title">অ্যাকাউন্ট</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="avatar" style="background:linear-gradient(135deg,#38bdf8,#0284c7);">👤</div>
+          <div class="list-main" style="min-width:0;">
+            <div class="list-title" id="fbAcctName">—</div>
+            <div class="list-sub" id="fbAcctEmail" style="word-break:break-all;">—</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn danger" style="width:100%;" onclick="handleLogout()">🚪 লগআউট</button>
+        <div class="muted" style="font-size:11px;margin-top:8px;text-align:center;">
+          লগআউট করলে আপনার সেশন শেষ হবে কিন্তু ডেটা সুরক্ষিত থাকবে।
+        </div>
+      </div>
+
+      <div class="section-title">অ্যাপ সম্পর্কে</div>
+      <div class="card center">
+        <div class="logo" style="margin:0 auto;width:54px;height:54px;border-radius:16px;font-size:22px;">৳</div>
+        <div style="font-weight:700;margin-top:8px;">গ্রামীণব্যাংক হেল্পার</div>
+        <div class="muted" style="font-size:12px;">GB Helper PRO • Enterprise Edition</div>
+        <div class="muted" style="font-size:11px;margin-top:8px;">পেশাদার গ্রামীণ ব্যাংকিং সহকারী</div>
+        <div class="divider"></div>
+        <div class="muted" style="font-size:12px;margin-bottom:8px;font-weight:600;">সাপোর্ট</div>
+        <div style="display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;">
+          <a href="mailto:reply.imrahul@gmail.com" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:#38bdf8;text-decoration:none;font-size:13px;font-weight:500;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+            ইমেইল
+          </a>
+          <a href="https://wa.me/2482591997" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#10b981;text-decoration:none;font-size:13px;font-weight:500;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-.9-2.3-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.5 1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 1.8.8 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.4 5.2L2 22l4.9-1.3c1.5.8 3.2 1.3 5.1 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bnav">
+  <button class="nav-item active" data-tab="dash" onclick="nav('dash')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 9h8V3h-8z"/></svg>
+    ড্যাশবোর্ড</button>
+  <button class="nav-item" data-tab="mem" onclick="nav('mem')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    সদস্য</button>
+  <button class="nav-item" data-tab="col" onclick="nav('col')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    সংগ্রহ</button>
+  <button class="nav-item" data-tab="tools" onclick="nav('tools')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-7 7 2 2 7-7a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2z"/></svg>
+    টুলস</button>
+  <button class="nav-item" data-tab="set" onclick="nav('set')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    সেটিংস</button>
+</nav>
+
+<!-- Sheets -->
+<div class="sheet-mask" id="sheetMask"><div class="sheet" id="sheet"></div></div>
+<div id="toast-wrap"></div>
+
+<!-- print area -->
+<div id="print-area" style="display:none;"></div>
+
+<script>
+/* ============================================================
+ * GB Helper PRO — Enterprise Sync Edition
+ * Architecture: Offline-first IndexedDB cache -> Firestore Background Queue Sync + Listeners
+ * Conflict Rules: Record with highest `updatedAt` wins. Uses `deletedAt` for soft deletes.
+ * ============================================================ */
+
+let currentFirebaseUser = null;
+
+/* -------------------- Utility -------------------- */
+const U={
+  uid:(p='id')=>p+'_'+Date.now().toString(36)+'_'+crypto.getRandomValues(new Uint32Array(2)).join(''),
+  now:()=>Date.now(),
+  fmtDate:(t,opt={})=>{const d=new Date(t||Date.now());return d.toLocaleDateString('bn-BD',{year:'numeric',month:'short',day:'numeric',...opt});},
+  fmtTime:(t)=>new Date(t||Date.now()).toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'}),
+  fmtDT:(t)=>U.fmtDate(t)+' '+U.fmtTime(t),
+  day:(t)=>['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'][new Date(t||Date.now()).getDay()],
+  workDay:(t)=>{const d=['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'][new Date(t||Date.now()).getDay()];return (d==='শুক্রবার'||d==='শনিবার')?'রবিবার':d;},
+  iso:(t)=>{const d=new Date(t||Date.now());return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');},
+  startOfDay:(t)=>{const d=new Date(t||Date.now());d.setHours(0,0,0,0);return d.getTime();},
+  endOfDay:(t)=>{const d=new Date(t||Date.now());d.setHours(23,59,59,999);return d.getTime();},
+  sha:async(s)=>{const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');},
+  debounce:(fn,ms=200)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};},
+  copy:(o)=>JSON.parse(JSON.stringify(o)),
+  esc:(s)=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
+  validPhone:(p)=>/^01[3-9]\d{8}$/.test(String(p||'').replace(/\D/g,'')),
+  cleanNum:(v)=>{const n=Number(String(v||'').replace(/[,\s]/g,''));return isFinite(n)?n:0;},
+};
+const Bn={
+  digits:['০','১','২','৩','৪','৫','৬','৭','৮','৯'],
+  num:(n)=>{if(n==null||n==='')return '০';const s=String(n);return s.replace(/\d/g,d=>Bn.digits[+d]);},
+  money:(n)=>'৳ '+Bn.num(Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2})),
+};
+
+function toast(msg,type=''){const w=document.getElementById('toast-wrap');const t=document.createElement('div');t.className='toast '+(type||'');t.textContent=msg;w.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity=0;setTimeout(()=>t.remove(),300);},2400);}
+function openSheet(html){document.getElementById('sheet').innerHTML='<div class="sheet-grab"></div>'+html;document.getElementById('sheetMask').classList.add('show');}
+function closeSheet(){document.getElementById('sheetMask').classList.remove('show');}
+document.getElementById('sheetMask').addEventListener('click',e=>{if(e.target.id==='sheetMask')closeSheet();});
+function setSync(s){const d=document.getElementById('syncDot');if(!d)return;d.className='sync-dot '+(s||'');}
+
+/* -------------------- IndexedDB layer -------------------- */
+const DB={
+  name:'sanchaysathi',version:2,_db:null,
+  stores:['members','transactions','collections','settings','audit','reports','syncQueue'],
+  initForUser(uid){
+    this.name = 'sanchaysathi_' + uid;
+    if(this._db) { this._db.close(); this._db = null; }
+  },
+  open(){return new Promise((res,rej)=>{
+    if(this._db)return res(this._db);
+    const r=indexedDB.open(this.name,this.version);
+    r.onupgradeneeded=(e)=>{const db=e.target.result;
+      this.stores.forEach(s=>{if(!db.objectStoreNames.contains(s))db.createObjectStore(s,{keyPath:'id'});});
+    };
+    r.onsuccess=()=>{this._db=r.result;res(this._db);};
+    r.onerror=()=>rej(r.error);
+  });},
+  async tx(store,mode='readonly'){const db=await this.open();return db.transaction(store,mode).objectStore(store);},
+  
+  async put(store,obj){
+    obj.updatedAt = U.now(); // Critical for conflict resolution
+    await this.putLocal(store, obj);
+    const fsStore = store === 'audit' ? 'auditLogs' : store;
+    if(fsStore !== 'syncQueue') await FS.queueChange(fsStore, obj);
+    return obj;
+  },
+  async putLocal(store,obj){
+    const s=await this.tx(store,'readwrite');
+    return new Promise((res,rej)=>{const r=s.put(obj);r.onsuccess=()=>res(obj);r.onerror=()=>rej(r.error);});
+  },
+  async get(store,id){const s=await this.tx(store);return new Promise((res,rej)=>{const r=s.get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});},
+  
+  // Logical physical delete only (soft deletes are handled via DB.put logic)
+  async delLocal(store,id){
+    const s=await this.tx(store,'readwrite');
+    return new Promise((res,rej)=>{const r=s.delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});
+  },
+  async all(store){const s=await this.tx(store);return new Promise((res,rej)=>{const out=[];const r=s.openCursor();r.onsuccess=(e)=>{const c=e.target.result;if(c){out.push(c.value);c.continue();}else res(out);};r.onerror=()=>rej(r.error);});},
+  async clear(store){const s=await this.tx(store,'readwrite');return new Promise((res,rej)=>{const r=s.clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});},
+  async snapshot(){const data={v:2,t:U.now()};for(const s of this.stores){if(s!=='syncQueue') data[s]=await this.all(s);}
+    return data;},
+  async restore(data,mode='replace'){
+    if(!data||typeof data!=='object')throw new Error('Invalid data');
+    for(const s of this.stores){
+      if(s==='syncQueue' || !Array.isArray(data[s]))continue;
+      if(mode==='replace')await this.clear(s);
+      for(const item of data[s]){if(item&&item.id) await this.put(s,item);} // Queue all items for Cloud Sync
+    }
+  },
+  async storageUse(){try{const e=await navigator.storage?.estimate?.();return e?{used:e.usage,quota:e.quota}:null;}catch{return null;}}
+};
+
+/* -------------------- Firestore Sync Engine -------------------- */
+const FS = {
+  unsubs: {},
+  isSyncing: false,
+  path(collectionName) {
+    if (!currentFirebaseUser) return null;
+    return `users/${currentFirebaseUser.uid}/${collectionName}`;
+  },
+  async queueChange(collectionName, obj) {
+    await DB.putLocal('syncQueue', { id: U.uid('sq'), col: collectionName, data: obj, t: U.now() });
+    this.processQueue(); // Fire non-blocking immediate attempt
+  },
+  async processQueue() {
+    if(!navigator.onLine || !currentFirebaseUser || this.isSyncing) return;
+    this.isSyncing = true;
+    setSync('busy');
+    try {
+      const ops = await DB.all('syncQueue');
+      const st = document.getElementById('fsQueueStatus');
+      if (st) st.textContent = 'কিউ: ' + ops.length + ' পেন্ডিং';
+
+      for(const op of ops) {
+        const p = this.path(op.col);
+        if(p && window.__firestore) {
+           await window.__firestore.setDoc(window.__firestore.doc(window.__fsDb, p, op.data.id), op.data, {merge: true});
+        }
+        await DB.delLocal('syncQueue', op.id); // Clear completed operation
+      }
+      setSync('ok');
+      if (st) st.textContent = 'কিউ: 0 পেন্ডিং';
+    } catch(e) {
+      console.warn('Sync Queue error:', e);
+      setSync('err');
+    } finally {
+      this.isSyncing = false;
+    }
+  },
+  async downloadAll() {
+    if (!currentFirebaseUser || !window.__fsDb || !window.__firestore) return;
+    setSync('busy');
+    try {
+      const collections = ['members', 'transactions', 'collections', 'auditLogs', 'settings', 'reports', 'loans', 'savings'];
+      const storeMap = {'auditLogs': 'audit'};
+      
+      for (const colName of collections) {
+        const p = this.path(colName);
+        if (!p) continue;
+        const targetStore = storeMap[colName] || colName;
+        if (!DB.stores.includes(targetStore)) continue; // We'll ignore unstructured legacy loans/savings in local memory
+        
+        const snap = await window.__firestore.getDocs(window.__firestore.collection(window.__fsDb, p));
+        for (const d of snap.docs) {
+           const cloudData = d.data();
+           const localData = await DB.get(targetStore, cloudData.id);
+           
+           // Conflict Resolution Engine using `updatedAt`
+           if (!localData || (cloudData.updatedAt || 0) > (localData.updatedAt || 0)) {
+               await DB.putLocal(targetStore, cloudData); // Cloud is newer, overwrite local
+           } else if (localData && (localData.updatedAt || 0) > (cloudData.updatedAt || 0)) {
+               await this.queueChange(colName, localData); // Local is newer, push to cloud
+           }
+        }
+      }
+      setSync('ok');
+    } catch (e) {
+      console.error('Firestore Download error:', e);
+      setSync('err');
+    }
+  },
+  startListeners() {
+    if (!currentFirebaseUser || !window.__fsDb || !window.__firestore) return;
+    const collections = ['members', 'transactions', 'collections', 'auditLogs', 'settings', 'reports'];
+    const storeMap = {'auditLogs': 'audit'};
+    
+    for(const col of collections) {
+       if(this.unsubs[col]) this.unsubs[col](); // Cleanup any existing
+       const p = this.path(col);
+       const targetStore = storeMap[col] || col;
+       if (!DB.stores.includes(targetStore)) continue;
+       
+       const q = window.__firestore.collection(window.__fsDb, p);
+       this.unsubs[col] = window.__firestore.onSnapshot(q, async (snap) => {
+           let changed = false;
+           for (const change of snap.docChanges()) {
+               const cloudData = change.doc.data();
+               if (change.type === 'added' || change.type === 'modified') {
+                   const localData = await DB.get(targetStore, cloudData.id);
+                   if (!localData || (cloudData.updatedAt || 0) > (localData.updatedAt || 0)) {
+                       await DB.putLocal(targetStore, cloudData);
+                       changed = true;
+                   }
+               } else if (change.type === 'removed') {
+                   // Shouldn't happen often due to Soft Deletes, but if physical delete happens on cloud
+                   await DB.delLocal(targetStore, cloudData.id);
+                   changed = true;
+               }
+           }
+           if(changed) {
+               await App.loadAll();
+               refreshAll(); // Auto-update UI
+           }
+       }, (err) => {
+          console.warn('Real-time Snapshot error for '+col+':', err);
+          setSync('err');
+       });
+    }
+  },
+  stopListeners() {
+    Object.values(this.unsubs).forEach(unsub => unsub());
+    this.unsubs = {};
+  }
+};
+
+// Global Listeners for connectivity
+window.addEventListener('online', () => FS.processQueue());
+setInterval(() => FS.processQueue(), 10000); // 10-second background heartbeat
+
+/* -------------------- Settings store -------------------- */
+const Settings={
+  cache:{},
+  async load(){const r=await DB.all('settings');this.cache={};r.forEach(x=>this.cache[x.id]=x.value);return this.cache;},
+  async get(k,d=null){if(k in this.cache)return this.cache[k];const r=await DB.get('settings',k);return r?r.value:d;},
+  async set(k,v){this.cache[k]=v;await DB.put('settings',{id:k,value:v});}
+};
+
+/* -------------------- Audit -------------------- */
+const Audit={
+  async log(action,detail=''){await DB.put('audit',{id:U.uid('aud'),t:U.now(),createdAt:U.now(),action,detail,user:currentFirebaseUser?.uid||'guest'});}
+};
+
+/* -------------------- PIN Security System -------------------- */
+const Auth={
+  async hasPin(){return !!(await Settings.get('pinHash'));},
+  async setPin(pin){
+    if(!/^\d{4,6}$/.test(pin))throw new Error('পিন ৪–৬ সংখ্যার হতে হবে');
+    const salt=await Settings.get('pinSalt')||U.uid('s');
+    await Settings.set('pinSalt',salt);
+    const h=await U.sha(salt+'|'+pin);
+    await Settings.set('pinHash',h);
+    Audit.log('pin.set');
+  },
+  async verify(pin){
+    const salt=await Settings.get('pinSalt');const stored=await Settings.get('pinHash');
+    if(!salt||!stored)return false;
+    const h=await U.sha(salt+'|'+pin);return h===stored;
+  }
+};
+
+/* -------------------- Cloud Sync (Google Drive Backup) -------------------- */
+const Cloud={
+  CLIENT_ID:'417944344038-5i2jli8p4miug1ppo5g3d025e09n26jl.apps.googleusercontent.com',
+  TOKEN:null,EXPIRES:0,EMAIL:null,
+  FOLDER_NAME:'GB Helper_Backup',FILE_NAME:'sanchaysathi-db.json',
+  
+  get uidKey(){ return currentFirebaseUser ? '_' + currentFirebaseUser.uid : ''; },
+
+  isReady(){return !!this.TOKEN && Date.now()<this.EXPIRES-30000;},
+  async ensureGoogle(clientId){
+    if(window.google&&google.accounts&&google.accounts.oauth2)return true;
+    await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    return true;
+  },
+  async signIn(){
+    await this.ensureGoogle();
+    return new Promise((res,rej)=>{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:this.CLIENT_ID,
+        scope:'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email',
+        callback:async (resp)=>{
+          if(resp.error) return rej(new Error(resp.error));
+          this.TOKEN=resp.access_token;
+          this.EXPIRES=Date.now()+((resp.expires_in||3600)*1000);
+          
+          localStorage.setItem('gd_access_token' + this.uidKey, this.TOKEN);
+          localStorage.setItem('gd_expire' + this.uidKey, this.EXPIRES);
+          try{
+            const ui=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{ headers:{Authorization:'Bearer '+this.TOKEN} }).then(r=>r.json());
+            this.EMAIL=ui.email||'';
+            localStorage.setItem('gd_email' + this.uidKey, this.EMAIL);
+          }catch(e){}
+          
+          await Settings.set('gdEmail',this.EMAIL);
+          Audit.log('cloud.signin',this.EMAIL);
+          res(true);
+        }
+      });
+      client.requestAccessToken();
+    });
+  },
+  signOut(){
+      this.TOKEN=null; this.EXPIRES=0; this.EMAIL=null;
+      localStorage.removeItem('gd_access_token' + this.uidKey);
+      localStorage.removeItem('gd_expire' + this.uidKey);
+      localStorage.removeItem('gd_email' + this.uidKey);
+  },
+  async api(path,opts={}){
+    if(!this.isReady())throw new Error('Google Drive সংযুক্ত নয়');
+    const r=await fetch('https://www.googleapis.com/'+path,{...opts,headers:{Authorization:'Bearer '+this.TOKEN,...(opts.headers||{})}});
+    if(!r.ok)throw new Error('Drive API '+r.status);
+    return r;
+  },
+  async findOrCreateFolder(){
+    const q=encodeURIComponent(`name='${this.FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+    const r=await this.api('drive/v3/files?q='+q+'&fields=files(id,name)');const j=await r.json();
+    if(j.files&&j.files.length)return j.files[0].id;
+    const r2=await this.api('drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:this.FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'})});
+    const j2=await r2.json();return j2.id;
+  },
+  async findFile(folderId){
+    const q=encodeURIComponent(`name='${this.FILE_NAME}' and '${folderId}' in parents and trashed=false`);
+    const r=await this.api('drive/v3/files?q='+q+'&fields=files(id,name,modifiedTime)');const j=await r.json();
+    return j.files&&j.files[0]||null;
+  },
+  async backup(){
+    try{
+      const data=await DB.snapshot();
+      const folder=await this.findOrCreateFolder();
+      const existing=await this.findFile(folder);
+      const boundary='-------ssp'+Date.now();
+      const meta={name:this.FILE_NAME,...(existing?{}:{parents:[folder]})};
+      const body=`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(data)}\r\n--${boundary}--`;
+      const url='upload/drive/v3/files'+(existing?`/${existing.id}?uploadType=multipart`:`?uploadType=multipart`);
+      await this.api(url,{method:existing?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body});
+      await Settings.set('gdLastSync',U.now());
+      Audit.log('cloud.backup');toast('গুগল ড্রাইভ ব্যাকআপ সম্পন্ন','ok');
+      refreshSettingsUI();
+    }catch(e){toast('ব্যাকআপ ব্যর্থ: '+e.message,'err');throw e;}
+  },
+  async restore(mode='replace'){
+    try{
+      const folder=await this.findOrCreateFolder();
+      const f=await this.findFile(folder);if(!f)throw new Error('কোনো ব্যাকআপ পাওয়া যায়নি');
+      const r=await this.api('drive/v3/files/'+f.id+'?alt=media');const data=await r.json();
+      await DB.restore(data,mode);await Settings.load();
+      Audit.log('cloud.restore',mode);toast('পুনরুদ্ধার সম্পন্ন','ok');
+      refreshAll();
+    }catch(e){toast('পুনরুদ্ধার ব্যর্থ: '+e.message,'err');}
+  }
+};
+let _autoSyncTimer=null;
+function scheduleAutoSync(){
+  clearTimeout(_autoSyncTimer);
+  _autoSyncTimer=setTimeout(()=>{if(Cloud.isReady())Cloud.backup().catch(()=>{});},8000);
+}
+
+/* -------------------- App state -------------------- */
+const App={
+  members:[],transactions:[],collections:[],currentScreen:'dash',filterDay:'all',memSearchQ:'',
+  weeklyDays:['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার'],
+  async loadAll(){
+    // Ensure Soft Deleted records are filtered out of application memory
+    this.members=(await DB.all('members')).filter(m => !m.deletedAt);
+    this.transactions=(await DB.all('transactions')).filter(t => !t.deletedAt);
+    this.collections=(await DB.all('collections')).filter(c => !c.deletedAt);
+  }
+};
+
+/* -------------------- Member -------------------- */
+const Members={
+  blank(){return {id:'',code:'',name:'',phone:'',phone2:'',address:'',nid:'',photo:'',
+    day:'রবিবার',group:'',loanCycle:1,loanType:'flat',principal:0,rate:10,duration:50,frequency:'weekly',
+    savings:0,outstanding:0,paidInstallments:0,
+    status:'active',notes:'',createdAt:U.now(),updatedAt:U.now()};},
+  async nextCode(){
+    const all=await DB.all('members');
+    let max=0;all.forEach(m=>{const n=parseInt(String(m.code||'').replace(/\D/g,''),10);if(n>max)max=n;});
+    return 'M'+String(max+1).padStart(5,'0');
+  },
+  async save(m){
+    if(!m.name||!m.name.trim())throw new Error('নাম প্রয়োজন');
+    if(m.phone&&!U.validPhone(m.phone))throw new Error('সঠিক মোবাইল নম্বর দিন');
+    if(!m.id){m.id=U.uid('mem');m.code=m.code||await this.nextCode();m.createdAt=U.now();}
+    
+    if(m.principal>0&&!m.outstanding)m.outstanding=Members.computeTotalPayable(m);
+    await DB.put('members',m);
+    
+    // Sync abstract relations to firestore queue to adhere to older format backups if needed
+    if(m.principal>0 || m.outstanding>0) await FS.queueChange('loans', { id: 'loan_'+m.id, memberId: m.id, principal: m.principal, outstanding: m.outstanding, type: m.loanType, rate: m.rate, duration: m.duration, updatedAt: U.now() });
+    await FS.queueChange('savings', { id: 'sav_'+m.id, memberId: m.id, savings: m.savings, updatedAt: U.now() });
+    
+    await App.loadAll();
+    Audit.log('member.save',m.code+' '+m.name);
+    scheduleAutoSync();return m;
+  },
+  computeTotalPayable(m){
+    const p=U.cleanNum(m.principal),r=U.cleanNum(m.rate),d=U.cleanNum(m.duration);
+    if(m.loanType==='flat'){return p+(p*r/100);}
+    if(m.loanType==='emi'){const i=r/100/12;const n=d;if(!i)return p;return Math.round(p*i*Math.pow(1+i,n)/(Math.pow(1+i,n)-1)*n);}
+    if(m.loanType==='declining'){let bal=p;let total=0;const wr=r/100/52;for(let k=0;k<d;k++){const int=bal*wr;const prin=p/d;total+=prin+int;bal-=prin;}return Math.round(total);}
+    return p+(p*r/100);
+  },
+  installmentAmount(m){
+    if(!m.principal)return 0;
+    const total=m.outstanding||this.computeTotalPayable(m);
+    return Math.round(total/(U.cleanNum(m.duration)||1));
+  },
+  async deactivate(id){const m=await DB.get('members',id);if(!m)return;m.status='inactive';await DB.put('members',m);await App.loadAll();Audit.log('member.deactivate',m.code);scheduleAutoSync();},
+  async reactivate(id){const m=await DB.get('members',id);if(!m)return;m.status='active';await DB.put('members',m);await App.loadAll();Audit.log('member.reactivate',m.code);scheduleAutoSync();},
+  async delete(id){
+    const m=await DB.get('members',id);if(!m)return;
+    m.deletedAt = U.now(); // Implement Soft Delete for Firestore Multi-device compatibility
+    await DB.put('members',m);
+    
+    await FS.queueChange('loans', { id: 'loan_'+id, deletedAt: U.now(), updatedAt: U.now() });
+    await FS.queueChange('savings', { id: 'sav_'+id, deletedAt: U.now(), updatedAt: U.now() });
+    
+    await App.loadAll();Audit.log('member.delete',(m.code||'')+' '+(m.name||''));scheduleAutoSync();
+  },
+};
+
+/* -------------------- Transactions -------------------- */
+const Tx={
+  async add(t){
+    if(!t.memberId)throw new Error('সদস্য প্রয়োজন');
+    if(!(t.amount>0))throw new Error('পরিমাণ সঠিক নয়');
+    const m=await DB.get('members',t.memberId);if(!m)throw new Error('সদস্য পাওয়া যায়নি');
+    const tx={id:U.uid('tx'),createdAt:U.now(),memberId:m.id,memberCode:m.code,memberName:m.name,
+      type:t.type||'installment',amount:U.cleanNum(t.amount),
+      collector:currentFirebaseUser?.displayName||'admin',remarks:t.remarks||'',
+      status:'completed',t:U.now(),date:U.iso(),day:U.day()};
+    tx.prevSavings=m.savings||0;tx.prevOutstanding=m.outstanding||0;
+    if(tx.type==='savings'){m.savings=(m.savings||0)+tx.amount;}
+    else if(tx.type==='withdrawal'){if((m.savings||0)<tx.amount)throw new Error('পর্যাপ্ত সঞ্চয় নেই');m.savings-=tx.amount;tx.amount=-tx.amount;}
+    else if(tx.type==='installment'||tx.type==='loan_payment'){m.outstanding=Math.max(0,(m.outstanding||0)-tx.amount);m.paidInstallments=(m.paidInstallments||0)+1;}
+    else if(tx.type==='disbursement'){m.outstanding=(m.outstanding||0)+tx.amount;}
+    tx.newSavings=m.savings;tx.newOutstanding=m.outstanding;
+    
+    await DB.put('members',m);
+    if(m.principal>0 || m.outstanding>0) await FS.queueChange('loans', { id: 'loan_'+m.id, memberId: m.id, principal: m.principal, outstanding: m.outstanding, type: m.loanType, rate: m.rate, duration: m.duration, updatedAt: U.now() });
+    await FS.queueChange('savings', { id: 'sav_'+m.id, memberId: m.id, savings: m.savings, updatedAt: U.now() });
+    await DB.put('transactions',tx);
+    await App.loadAll();Audit.log('tx.add',tx.type+' '+tx.amount+' '+m.code);
+    scheduleAutoSync();return tx;
+  },
+  async reverse(id){
+    const orig=await DB.get('transactions',id);if(!orig||orig.status!=='completed')throw new Error('লেনদেন পাওয়া যায়নি');
+    const m=await DB.get('members',orig.memberId);if(!m)throw new Error('সদস্য নেই');
+    m.savings=orig.prevSavings;m.outstanding=orig.prevOutstanding;
+    if(orig.type==='installment'||orig.type==='loan_payment')m.paidInstallments=Math.max(0,(m.paidInstallments||1)-1);
+    
+    await DB.put('members',m);
+    if(m.principal>0 || m.outstanding>0) await FS.queueChange('loans', { id: 'loan_'+m.id, memberId: m.id, principal: m.principal, outstanding: m.outstanding, type: m.loanType, rate: m.rate, duration: m.duration, updatedAt: U.now() });
+    await FS.queueChange('savings', { id: 'sav_'+m.id, memberId: m.id, savings: m.savings, updatedAt: U.now() });
+    
+    orig.status='reversed';orig.reversedAt=U.now();
+    await DB.put('transactions',orig);
+    const rev={...orig,id:U.uid('tx'),amount:-orig.amount,type:'reversal',remarks:'Reversal of '+orig.id,status:'completed',createdAt:U.now(),t:U.now()};
+    await DB.put('transactions',rev);
+    await App.loadAll();Audit.log('tx.reverse',orig.id);scheduleAutoSync();
+  },
+};
+
+/* -------------------- Calculators -------------------- */
+const Calc={
+  loanFlat(p,r,n){const i=p*r/100;return {total:p+i,interest:i,installment:Math.round((p+i)/n)};},
+  loanEMI(p,r,n){const i=r/100/12;if(!i)return {total:p,interest:0,installment:Math.round(p/n)};const emi=p*i*Math.pow(1+i,n)/(Math.pow(1+i,n)-1);return {total:Math.round(emi*n),interest:Math.round(emi*n-p),installment:Math.round(emi)};},
+  loanDeclining(p,r,n){let bal=p;let total=0;const wr=r/100/52;const sched=[];for(let k=0;k<n;k++){const int=bal*wr;const prin=p/n;total+=prin+int;bal-=prin;sched.push({k:k+1,prin:Math.round(prin),int:Math.round(int),bal:Math.max(0,Math.round(bal))});}return {total:Math.round(total),interest:Math.round(total-p),installment:Math.round(total/n),schedule:sched};},
+  dps(monthly,years,rate){const n=years*12;const r=rate/100/12;if(!r)return{maturity:monthly*n,interest:0,deposited:monthly*n};const fv=monthly*((Math.pow(1+r,n)-1)/r)*(1+r);return{maturity:Math.round(fv),interest:Math.round(fv-monthly*n),deposited:monthly*n};},
+  fdr(p,rate,years){const r=rate/100;const fv=p*Math.pow(1+r,years);return{maturity:Math.round(fv),profit:Math.round(fv-p)};}
+};
+
+/* -------------------- UI: Navigation -------------------- */
+function nav(tab){
+  App.currentScreen=tab;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===tab));
+  if(tab==='dash')renderDash();
+  if(tab==='mem')renderMembers();
+  if(tab==='col')renderCollection();
+  if(tab==='set')refreshSettingsUI();
+  window.scrollTo(0,0);
+}
+
+/* -------------------- PIN UI -------------------- */
+let pinBuf='',pinMode='set',pinTemp='';
+function renderPinPad(){
+  const pad=document.getElementById('pinPad');
+  const keys=['১','২','৩','৪','৫','৬','৭','৮','৯','del','০','ok'];
+  pad.innerHTML='';keys.forEach(k=>{
+    const b=document.createElement('button');b.className='pin-key'+(k==='del'||k==='ok'?' fn':'');
+    b.textContent=k==='del'?'⌫':k==='ok'?'✓':k;
+    b.onclick=()=>pinKey(k);pad.appendChild(b);
+  });
+  drawDots();
+}
+function drawDots(){
+  const dots=document.getElementById('pinDots');dots.innerHTML='';
+  const len=Math.max(4,pinBuf.length);
+  for(let i=0;i<Math.max(4,Math.min(6,len));i++){const d=document.createElement('div');d.className='pin-dot'+(i<pinBuf.length?' fill':'');dots.appendChild(d);}
+}
+function pinKey(k){
+  if(k==='del'){pinBuf=pinBuf.slice(0,-1);drawDots();return;}
+  if(k==='ok'){return submitPin();}
+  if(pinBuf.length>=6)return;
+  const map={'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
+  pinBuf+=map[k]||'';drawDots();
+  if(pinBuf.length>=4&&pinMode==='setConfirm')submitPin();
+}
+async function submitPin(){
+  const msg=document.getElementById('pinMsg');msg.className='pin-msg';msg.textContent='';
+  if(pinBuf.length<4){msg.className='pin-msg err';msg.textContent='কমপক্ষে ৪ সংখ্যা';return;}
+  if(pinMode==='set'){pinTemp=pinBuf;pinBuf='';drawDots();
+    document.getElementById('pinTitle').textContent='পিন নিশ্চিত করুন';
+    document.getElementById('pinSub').textContent='আবার একই পিন দিন';
+    pinMode='setConfirm';return;}
+  if(pinMode==='setConfirm'){
+    if(pinBuf!==pinTemp){msg.className='pin-msg err';msg.textContent='পিন মেলেনি';pinBuf='';pinTemp='';pinMode='set';
+      document.getElementById('pinTitle').textContent='নতুন পিন সেট করুন';
+      document.getElementById('pinSub').textContent='৪–৬ সংখ্যার পিন দিন';drawDots();return;}
+    await Auth.setPin(pinBuf);pinBuf='';pinTemp='';toast('পিন সেট হয়েছে','ok');
+    enterApp();return;
+  }
+  if(pinMode==='change'){pinTemp=pinBuf;pinBuf='';drawDots();
+    document.getElementById('pinTitle').textContent='নতুন পিন নিশ্চিত';pinMode='setConfirm';return;}
+}
+async function initiateChangePin(){
+  const ok = await verifyPinPrompt('পিন পরিবর্তন', 'আপনার বর্তমান পিন দিন');
+  if(!ok) return;
+  closeSheet();
+  pinMode='change';pinBuf='';pinTemp='';
+  document.getElementById('pinTitle').textContent='নতুন পিন সেট করুন';
+  document.getElementById('pinSub').textContent='৪–৬ সংখ্যার পিন';
+  document.getElementById('appbar').style.display='none';
+  document.getElementById('bnav').classList.remove('show');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-pin').classList.add('active');drawDots();
+}
+
+function enterApp(){
+  document.getElementById('appbar').style.display='flex';
+  document.getElementById('bnav').classList.add('show');
+  nav('dash');
+  tryAutoCloudLogin();
+}
+async function tryAutoCloudLogin(){
+  const email=await Settings.get('gdEmail');
+  if(email && !Cloud.isReady())document.getElementById('gdStatus').textContent='সংযুক্ত: '+email+' (লগইন করুন)';
+}
+
+async function handleLogout(){
+  if(!confirm('লগআউট করবেন? আপনার সেশন শেষ হবে।')) return;
+  try{
+    FS.stopListeners();
+    await window.__fb.signOut(window.__fb.auth);
+    location.reload(); 
+  }catch(e){ toast('লগআউট ত্রুটি: '+e.message, 'err'); }
+}
+
+/* -------------------- Dashboard -------------------- */
+async function renderDash(){
+  await App.loadAll();
+  if (App.currentScreen !== 'dash') return; // Render protection during bg sync updates
+  const today=U.startOfDay();const endToday=U.endOfDay();
+  const todayTx=App.transactions.filter(t=>t.t>=today&&t.t<=endToday&&t.status==='completed');
+  const collected=todayTx.reduce((s,t)=>s+(t.amount>0?t.amount:0),0);
+  const todayDay=U.workDay();
+  const todayMembers=App.members.filter(m=>m.status==='active'&&m.day===todayDay);
+  const expected=todayMembers.reduce((s,m)=>s+Members.installmentAmount(m),0);
+  document.getElementById('todayCollection').textContent=Bn.money(collected);
+  document.getElementById('todayExpected').textContent=Bn.money(expected);
+  document.getElementById('todayDate').textContent=U.fmtDate()+' • '+todayDay;
+  const pct=expected>0?Math.min(100,Math.round(collected/expected*100)):0;
+  document.getElementById('todayBar').style.width=pct+'%';
+  document.getElementById('todayPctBadge').textContent=Bn.num(pct)+'%';
+
+  const act=App.members.filter(m=>m.status==='active').length;
+  const ina=App.members.length-act;
+  document.getElementById('kActive').textContent=Bn.num(act);
+  document.getElementById('kInactive').textContent='নিষ্ক্রিয়: '+Bn.num(ina);
+  const tSav=App.members.reduce((s,m)=>s+(m.savings||0),0);
+  const tLoan=App.members.reduce((s,m)=>s+(m.outstanding||0),0);
+  const loanCount=App.members.filter(m=>(m.outstanding||0)>0).length;
+  document.getElementById('kSavings').textContent=Bn.money(tSav);
+  document.getElementById('kLoan').textContent=Bn.money(tLoan);
+  document.getElementById('kLoanCount').textContent=Bn.num(loanCount)+' ঋণ';
+  const lastPay={};App.transactions.filter(t=>t.type==='installment'&&t.status==='completed').forEach(t=>{lastPay[t.memberId]=Math.max(lastPay[t.memberId]||0,t.t);});
+  const weekAgo=Date.now()-7*86400000;
+  let overdueAmt=0,overdueCount=0;
+  App.members.forEach(m=>{if(m.status==='active'&&(m.outstanding||0)>0&&(!lastPay[m.id]||lastPay[m.id]<weekAgo)){overdueCount++;overdueAmt+=Members.installmentAmount(m);}});
+  document.getElementById('kOverdue').textContent=Bn.money(overdueAmt);
+  document.getElementById('kOverdueCount').textContent=Bn.num(overdueCount)+' জন';
+
+  const rec=[...App.transactions].sort((a,b)=>b.t-a.t).slice(0,8);
+  document.getElementById('recentTx').innerHTML=rec.length?rec.map(t=>txItem(t)).join(''):'<div class="empty"><div class="ico">📭</div>কোনো লেনদেন নেই</div>';
+
+  const labels=[],vals=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const s=U.startOfDay(d.getTime()),e=U.endOfDay(d.getTime());
+    labels.push(d.toLocaleDateString('bn-BD',{weekday:'short'}));
+    vals.push(App.transactions.filter(t=>t.t>=s&&t.t<=e&&t.amount>0&&t.status==='completed').reduce((a,t)=>a+t.amount,0));
+  }
+  drawWeekChart(labels,vals);
+}
+let _chart=null;
+function drawWeekChart(labels,vals){
+  const ctx=document.getElementById('chartWeek');if(!ctx)return;
+  if(_chart)_chart.destroy();
+  const grad=ctx.getContext('2d').createLinearGradient(0,0,0,180);
+  grad.addColorStop(0,'rgba(52,211,153,.6)');grad.addColorStop(1,'rgba(52,211,153,0)');
+  _chart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#34d399',backgroundColor:grad,fill:true,tension:.4,borderWidth:2.5,pointBackgroundColor:'#10b981',pointRadius:3}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#6ee7b7'}},y:{grid:{color:'rgba(52,211,153,.08)'},ticks:{color:'#6ee7b7',callback:v=>Bn.num(v)}}},responsive:true,maintainAspectRatio:false}});
+}
+function txItem(t){
+  const sign=t.amount>=0?'+':'';
+  const cls=t.amount>=0?'tx-pos':'tx-neg';
+  const typeLabel={installment:'কিস্তি',savings:'সঞ্চয়',withdrawal:'উত্তোলন',disbursement:'বিতরণ',reversal:'রিভার্সাল',loan_payment:'ঋণ পরিশোধ',adjustment:'সমন্বয়'}[t.type]||t.type;
+  return `<div class="list-item" onclick="openTx('${t.id}')">
+    <div class="avatar" style="background:linear-gradient(135deg,${t.amount>=0?'#34d399,#059669':'#fb7185,#e11d48'});">${U.esc((t.memberName||'?').charAt(0))}</div>
+    <div class="list-main"><div class="list-title">${U.esc(t.memberName)}</div><div class="list-sub">${typeLabel} • ${U.fmtTime(t.t)}${t.status==='reversed'?' • <span class="badge dim">বাতিল</span>':''}</div></div>
+    <div class="list-side"><div class="amt ${cls}">${sign}${Bn.money(Math.abs(t.amount))}</div><div class="lbl">${U.fmtDate(t.t,{month:'short',day:'numeric'})}</div></div>
+  </div>`;
+}
+
+/* -------------------- Members UI -------------------- */
+function renderMembers(){
+  if (App.currentScreen !== 'mem') return;
+  const pills=document.getElementById('dayPills');
+  pills.innerHTML=['all',...App.weeklyDays].map(d=>`<button class="pill ${App.filterDay===d?'active':''}" onclick="setDayFilter('${d}')">${d==='all'?'সব দিন':d}</button>`).join('');
+  let list=App.members.slice().sort((a,b)=>a.name.localeCompare(b.name,'bn'));
+  if(App.filterDay!=='all')list=list.filter(m=>m.day===App.filterDay);
+  if(App.memSearchQ){const q=App.memSearchQ.toLowerCase();list=list.filter(m=>(m.name||'').toLowerCase().includes(q)||(m.phone||'').includes(q)||(m.code||'').toLowerCase().includes(q));}
+  const html=list.length?list.map(memberItem).join(''):'<div class="empty"><div class="ico">👥</div>কোনো সদস্য নেই<br><br><button class="btn primary sm" onclick="openAddMember()">প্রথম সদস্য যোগ করুন</button></div>';
+  document.getElementById('memList').innerHTML=html;
+}
+function setDayFilter(d){App.filterDay=d;renderMembers();}
+document.getElementById('memSearch').addEventListener('input',U.debounce(e=>{App.memSearchQ=e.target.value.trim();renderMembers();},150));
+function memberItem(m){
+  const inst=Members.installmentAmount(m);
+  return `<div class="list-item" onclick="openMember('${m.id}')">
+    <div class="avatar">${U.esc((m.name||'?').charAt(0))}</div>
+    <div class="list-main">
+      <div class="list-title">${U.esc(m.name)} ${m.status!=='active'?'<span class="badge dim">নিষ্ক্রিয়</span>':''}</div>
+      <div class="list-sub">${U.esc(m.code)} • <span class="tag-day">${m.day}</span> • ${U.esc(m.phone||'—')}</div>
+    </div>
+    <div class="list-side"><div class="amt">${Bn.money(m.outstanding||0)}</div><div class="lbl">কিস্তি ${Bn.money(inst)}</div></div>
+  </div>`;
+}
+
+function openAddMember(m){
+  const data=m||Members.blank();
+  openSheet(`
+    <h3>${m?'সদস্য সম্পাদনা':'নতুন সদস্য'}</h3>
+    <div class="field"><label>পূর্ণ নাম *</label><input id="f_name" value="${U.esc(data.name)}" placeholder="মোঃ রহিম উদ্দিন"></div>
+    <div class="row">
+      <div class="field"><label>মোবাইল</label><input id="f_phone" inputmode="numeric" value="${U.esc(data.phone)}" placeholder="01XXXXXXXXX"></div>
+      <div class="field"><label>বিকল্প মোবাইল</label><input id="f_phone2" inputmode="numeric" value="${U.esc(data.phone2)}"></div>
+    </div>
+    <div class="field"><label>ঠিকানা</label><input id="f_addr" value="${U.esc(data.address)}"></div>
+    <div class="row">
+      <div class="field"><label>NID</label><input id="f_nid" inputmode="numeric" value="${U.esc(data.nid)}"></div>
+      <div class="field"><label>গ্রুপ</label><input id="f_group" value="${U.esc(data.group)}" placeholder="গ্রুপ-A"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>সাপ্তাহিক দিন *</label><select id="f_day">${App.weeklyDays.map(d=>`<option ${data.day===d?'selected':''}>${d}</option>`).join('')}</select></div>
+      <div class="field"><label>ঋণ চক্র</label><input id="f_cycle" type="number" min="1" value="${data.loanCycle||1}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>ঋণ ধরন</label><select id="f_lt"><option value="flat" ${data.loanType==='flat'?'selected':''}>ফ্ল্যাট</option><option value="emi" ${data.loanType==='emi'?'selected':''}>EMI</option><option value="declining" ${data.loanType==='declining'?'selected':''}>হ্রাসমান</option></select></div>
+      <div class="field"><label>মূলধন</label><input id="f_prin" inputmode="numeric" value="${data.principal||''}"></div>
+    </div>
+    <div class="row-3">
+      <div class="field"><label>সুদ %</label><input id="f_rate" inputmode="decimal" value="${data.rate||''}"></div>
+      <div class="field"><label>মেয়াদ</label><input id="f_dur" inputmode="numeric" value="${data.duration||''}"></div>
+      <div class="field"><label>সঞ্চয়</label><input id="f_sav" inputmode="numeric" value="${data.savings||''}"></div>
+    </div>
+    <div class="field"><label>নোট</label><textarea id="f_notes" rows="2">${U.esc(data.notes)}</textarea></div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn" onclick="closeSheet()">বাতিল</button>
+      <button class="btn primary" onclick="saveMemberForm('${data.id}')">${m?'আপডেট':'যোগ করুন'}</button>
+    </div>
+  `);
+}
+async function saveMemberForm(id){
+  try{
+    const m=id?await DB.get('members',id):Members.blank();
+    m.name=document.getElementById('f_name').value.trim();
+    m.phone=document.getElementById('f_phone').value.trim();
+    m.phone2=document.getElementById('f_phone2').value.trim();
+    m.address=document.getElementById('f_addr').value.trim();
+    m.nid=document.getElementById('f_nid').value.trim();
+    m.group=document.getElementById('f_group').value.trim();
+    m.day=document.getElementById('f_day').value;
+    m.loanCycle=parseInt(document.getElementById('f_cycle').value)||1;
+    m.loanType=document.getElementById('f_lt').value;
+    m.principal=U.cleanNum(document.getElementById('f_prin').value);
+    m.rate=U.cleanNum(document.getElementById('f_rate').value);
+    m.duration=U.cleanNum(document.getElementById('f_dur').value);
+    if(!id){m.savings=U.cleanNum(document.getElementById('f_sav').value);m.outstanding=0;}
+    m.notes=document.getElementById('f_notes').value.trim();
+    if(m.principal>0&&!id)m.outstanding=Members.computeTotalPayable(m);
+    await Members.save(m);closeSheet();toast(id?'আপডেট হয়েছে':'সদস্য যোগ হয়েছে','ok');
+    renderMembers();
+  }catch(e){toast(e.message,'err');}
+}
+
+async function openMember(id){
+  const m=await DB.get('members',id);if(!m)return;
+  const txs=App.transactions.filter(t=>t.memberId===id).sort((a,b)=>b.t-a.t);
+  const qrId='qr_'+id;
+  openSheet(`
+    <h3>সদস্য প্রোফাইল</h3>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <div class="avatar" style="width:56px;height:56px;border-radius:16px;font-size:22px;">${U.esc(m.name.charAt(0))}</div>
+      <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:16px;">${U.esc(m.name)} ${m.status!=='active'?'<span class="badge dim">নিষ্ক্রিয়</span>':''}</div>
+        <div class="muted" style="font-size:12px;">${U.esc(m.code)} • <span class="tag-day">${m.day}</span></div>
+        <div class="muted" style="font-size:12px;">📞 ${U.esc(m.phone||'—')}</div></div>
+    </div>
+    <div class="row-3" style="margin-top:12px;">
+      <div class="kpi"><div class="lbl">সঞ্চয়</div><div class="val" style="font-size:15px;">${Bn.money(m.savings||0)}</div></div>
+      <div class="kpi warn"><div class="lbl">বকেয়া</div><div class="val" style="font-size:15px;">${Bn.money(m.outstanding||0)}</div></div>
+      <div class="kpi alt"><div class="lbl">কিস্তি</div><div class="val" style="font-size:15px;">${Bn.money(Members.installmentAmount(m))}</div></div>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn primary" onclick="openCollect('${id}')">💰 পেমেন্ট</button>
+      <button class="btn" onclick="openAddMember(${JSON.stringify(m).replace(/"/g,'&quot;')})">✏️ সম্পাদনা</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn" onclick="printMemberStatement('${id}')">🖨️ স্টেটমেন্ট</button>
+      <button class="btn" onclick="${m.status==='active'?`if(confirm('নিষ্ক্রিয় করবেন?')){Members.deactivate('${id}').then(()=>{closeSheet();renderMembers();toast('নিষ্ক্রিয় হয়েছে','ok');});}`:`Members.reactivate('${id}').then(()=>{closeSheet();renderMembers();toast('সক্রিয় হয়েছে','ok');});`}">${m.status==='active'?'⏸️ নিষ্ক্রিয়':'▶️ সক্রিয়'}</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn danger" onclick="confirmDeleteMember('${id}')">🗑️ সদস্য ডিলিট</button>
+    </div>
+    ${m.phone?`<button class="btn" style="margin-top:8px;" onclick="reminderShare('${id}')">💬 রিমাইন্ডার পাঠান</button>`:''}
+    <div class="divider"></div>
+    <div class="h2">QR কোড</div>
+    <div class="center"><canvas id="${qrId}" style="background:#fff;padding:8px;border-radius:10px;"></canvas></div>
+    <div class="divider"></div>
+    <div class="h2">লেনদেন ইতিহাস (${Bn.num(txs.length)})</div>
+    ${txs.length?txs.slice(0,30).map(txItem).join(''):'<div class="empty muted">এখনো লেনদেন নেই</div>'}
+    ${m.notes?`<div class="card" style="margin-top:10px;"><div class="muted" style="font-size:11px;">নোট</div>${U.esc(m.notes)}</div>`:''}
+  `);
+  setTimeout(()=>{try{QRCode.toCanvas(document.getElementById(qrId),JSON.stringify({app:'sspro',id:m.id,code:m.code}),{width:140,margin:1});}catch(e){}},50);
+}
+
+function openCollect(memberId){
+  const m=App.members.find(x=>x.id===memberId);if(!m)return;
+  const inst=Members.installmentAmount(m);
+  openSheet(`
+    <h3>পেমেন্ট গ্রহণ</h3>
+    <div class="card" style="padding:10px;margin-bottom:10px;">
+      <div style="font-weight:600;">${U.esc(m.name)}</div>
+      <div class="muted" style="font-size:12px;">${U.esc(m.code)} • বকেয়া ${Bn.money(m.outstanding||0)} • সঞ্চয় ${Bn.money(m.savings||0)}</div>
+    </div>
+    <div class="field"><label>ধরন</label><select id="t_type" onchange="document.getElementById('t_amt').value=this.value==='installment'?'${inst}':''">
+      <option value="installment">কিস্তি (পরামর্শ: ${Bn.money(inst)})</option>
+      <option value="savings">সঞ্চয় জমা</option>
+      <option value="withdrawal">সঞ্চয় উত্তোলন</option>
+      <option value="loan_payment">ঋণ অতিরিক্ত পরিশোধ</option>
+      <option value="disbursement">নতুন ঋণ বিতরণ</option>
+    </select></div>
+    <div class="field"><label>পরিমাণ ৳</label><input id="t_amt" inputmode="numeric" value="${inst||''}" placeholder="0"></div>
+    <div class="field"><label>মন্তব্য</label><input id="t_rem" placeholder="ঐচ্ছিক"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">বাতিল</button>
+      <button class="btn primary" onclick="doCollect('${memberId}')">নিশ্চিত করুন</button>
+    </div>
+  `);
+}
+async function doCollect(id){
+  try{
+    const tx=await Tx.add({memberId:id,type:document.getElementById('t_type').value,amount:U.cleanNum(document.getElementById('t_amt').value),remarks:document.getElementById('t_rem').value.trim()});
+    closeSheet();toast('লেনদেন সম্পন্ন','ok');
+    renderDash();renderMembers();if(App.currentScreen==='col')renderCollection();
+    setTimeout(()=>openReceipt(tx.id),200);
+  }catch(e){toast(e.message,'err');}
+}
+
+async function openTx(id){
+  const t=await DB.get('transactions',id);if(!t)return;
+  const m=await DB.get('members',t.memberId);
+  const qrId='qrc_'+id;
+  openSheet(`
+    <h3>লেনদেন বিবরণ</h3>
+    <table class="rep" style="width:100%;">
+      <tr><td>আইডি</td><td class="r"><span class="kbd">${t.id.slice(-10)}</span></td></tr>
+      <tr><td>সদস্য</td><td class="r">${U.esc(t.memberName)} (${U.esc(t.memberCode)})</td></tr>
+      <tr><td>ধরন</td><td class="r">${t.type}</td></tr>
+      <tr><td>পরিমাণ</td><td class="r"><b>${Bn.money(t.amount)}</b></td></tr>
+      <tr><td>আগের সঞ্চয়</td><td class="r">${Bn.money(t.prevSavings||0)}</td></tr>
+      <tr><td>নতুন সঞ্চয়</td><td class="r">${Bn.money(t.newSavings||0)}</td></tr>
+      <tr><td>আগের বকেয়া</td><td class="r">${Bn.money(t.prevOutstanding||0)}</td></tr>
+      <tr><td>নতুন বকেয়া</td><td class="r">${Bn.money(t.newOutstanding||0)}</td></tr>
+      <tr><td>স্ট্যাটাস</td><td class="r">${t.status}</td></tr>
+      <tr><td>সময়</td><td class="r">${U.fmtDT(t.t)}</td></tr>
+      <tr><td>সংগ্রাহক</td><td class="r">${U.esc(t.collector||'')}</td></tr>
+      ${t.remarks?`<tr><td>মন্তব্য</td><td class="r">${U.esc(t.remarks)}</td></tr>`:''}
+    </table>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn" onclick="openReceipt('${t.id}')">🧾 রিসিট</button>
+      <button class="btn danger" onclick="if(confirm('এই লেনদেন বাতিল করবেন?')){Tx.reverse('${t.id}').then(()=>{closeSheet();toast('রিভার্স হয়েছে','ok');renderDash();renderMembers();});}" ${t.status!=='completed'?'disabled style="opacity:.5;"':''}>↩ রিভার্স</button>
+    </div>
+  `);
+}
+
+async function openReceipt(id){
+  const t=await DB.get('transactions',id);if(!t)return;
+  const m=await DB.get('members',t.memberId);
+  const qrId='qrc_'+id;
+  openSheet(`
+    <h3>রিসিট</h3>
+    <div id="receiptBox">
+      <div class="receipt">
+        <h3>গ্রামীণব্যাংক হেল্পার</h3>
+        <div class="small">GB Helper PRO</div>
+        <div class="small">${U.fmtDT(t.t)}</div>
+        <table>
+          <tr><td>রিসিট #</td><td>${t.id.slice(-10).toUpperCase()}</td></tr>
+          <tr><td>সদস্য</td><td>${U.esc(t.memberName)}</td></tr>
+          <tr><td>আইডি</td><td>${U.esc(t.memberCode)}</td></tr>
+          <tr><td>ধরন</td><td>${t.type}</td></tr>
+          <tr><td>সংগ্রাহক</td><td>${U.esc(t.collector||'')}</td></tr>
+        </table>
+        <div class="total"><span>মোট</span><span>${Bn.money(Math.abs(t.amount))}</span></div>
+        <table style="margin-top:8px;">
+          <tr><td>সঞ্চয় ব্যালেন্স</td><td>${Bn.money(t.newSavings||0)}</td></tr>
+          <tr><td>বকেয়া ব্যালেন্স</td><td>${Bn.money(t.newOutstanding||0)}</td></tr>
+        </table>
+        <div class="qr"><canvas id="${qrId}"></canvas></div>
+        <div class="sign"><span>_________<br>সদস্যের স্বাক্ষর</span><span>_________<br>সংগ্রাহক</span></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn" onclick="closeSheet()">বন্ধ</button>
+      <button class="btn primary" onclick="printReceipt()">🖨️ প্রিন্ট</button>
+    </div>
+  `);
+  setTimeout(()=>{try{QRCode.toCanvas(document.getElementById(qrId),JSON.stringify({tx:t.id,m:t.memberCode,amt:t.amount}),{width:110,margin:1});}catch(e){}},50);
+}
+function printReceipt(){
+  const html=document.getElementById('receiptBox').innerHTML;
+  const p=document.getElementById('print-area');p.style.display='block';p.innerHTML=html;
+  window.print();setTimeout(()=>{p.style.display='none';p.innerHTML='';},500);
+}
+
+/* -------------------- Collection screen -------------------- */
+function renderCollection(){
+  if (App.currentScreen !== 'col') return;
+  const sel=document.getElementById('colDaySel').value;
+  const day=sel==='auto'?U.workDay():sel;
+  document.getElementById('colDate').textContent=U.fmtDate();
+  document.getElementById('colDayLabel').textContent=day;
+  const today=U.startOfDay();const endT=U.endOfDay();
+  const memlist=App.members.filter(m=>m.status==='active'&&m.day===day);
+  let collected=0,pending=0,doneCount=0;
+  const rows=memlist.map(m=>{
+    const due=Members.installmentAmount(m);
+    const paidToday=App.transactions.filter(t=>t.memberId===m.id&&t.t>=today&&t.t<=endT&&t.type==='installment'&&t.status==='completed').reduce((s,t)=>s+t.amount,0);
+    const remaining=Math.max(0,due-paidToday);
+    if(paidToday>0)doneCount++;
+    collected+=paidToday;pending+=remaining;
+    return {m,due,paidToday,remaining};
+  });
+  document.getElementById('colCollected').textContent=Bn.money(collected);
+  document.getElementById('colPending').textContent=Bn.money(pending);
+  document.getElementById('colDone').textContent=Bn.num(doneCount)+'/'+Bn.num(memlist.length);
+  const list=document.getElementById('colList');
+  list.innerHTML=memlist.length?rows.map(({m,due,paidToday,remaining})=>{
+    const status=paidToday>=due?'<span class="badge ok">পরিশোধিত</span>':paidToday>0?'<span class="badge warn">আংশিক</span>':'<span class="badge dim">বাকি</span>';
+    return `<div class="list-item">
+      <div class="avatar">${U.esc(m.name.charAt(0))}</div>
+      <div class="list-main"><div class="list-title">${U.esc(m.name)} ${status}</div>
+        <div class="list-sub">${U.esc(m.code)} • ${U.esc(m.phone||'')} • বকেয়া: ${Bn.money(m.outstanding||0)}</div></div>
+      <div class="list-side">
+        <div class="amt">${Bn.money(remaining)}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button class="btn primary sm" onclick="openCollect('${m.id}')">💰</button>
+          ${m.phone?`<button class="btn sm" onclick="reminderShare('${m.id}')">💬</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ico">📭</div>'+day+'-এ কোনো সদস্য নেই</div>';
+}
+document.getElementById('colDaySel').addEventListener('change',renderCollection);
+
+function reminderShare(id){
+  const m=App.members.find(x=>x.id===id);if(!m)return;
+  const due=Members.installmentAmount(m);
+  const msg=`প্রিয় ${m.name}, গ্রামীণব্যাংক হেল্পার থেকে স্মরণ করিয়ে দেয়া হচ্ছে — আপনার আজকের কিস্তি ${Bn.money(due)}, মোট বকেয়া ${Bn.money(m.outstanding||0)}। দয়া করে নির্ধারিত সময়ে পরিশোধ করুন। ধন্যবাদ।`;
+  const ph=String(m.phone||'').replace(/\D/g,'');
+  openSheet(`
+    <h3>রিমাইন্ডার পাঠান</h3>
+    <textarea rows="5" id="remMsg">${U.esc(msg)}</textarea>
+    <div class="btn-row" style="margin-top:10px;">
+      <a class="btn primary" href="https://wa.me/88${ph}?text=${encodeURIComponent(msg)}" target="_blank">WhatsApp</a>
+      <a class="btn" href="sms:${ph}?body=${encodeURIComponent(msg)}">SMS</a>
+    </div>
+  `);
+}
+
+/* -------------------- Calculators UI -------------------- */
+function openCalc(t){
+  if(t==='loan')openSheet(`
+    <h3>ঋণ ক্যালকুলেটর</h3>
+    <div class="row"><div class="field"><label>মূলধন ৳</label><input id="lc_p" inputmode="numeric" value="50000"></div>
+      <div class="field"><label>সুদ %</label><input id="lc_r" inputmode="decimal" value="10"></div></div>
+    <div class="row"><div class="field"><label>মেয়াদ</label><input id="lc_n" inputmode="numeric" value="50"></div>
+      <div class="field"><label>ধরন</label><select id="lc_t"><option value="flat">ফ্ল্যাট</option><option value="emi">EMI</option><option value="declining">হ্রাসমান</option></select></div></div>
+    <button class="btn primary" onclick="calcLoan()">হিসাব করুন</button>
+    <div id="lc_out" style="margin-top:12px;"></div>
+  `);
+  if(t==='dps')openSheet(`
+    <h3>DPS ক্যালকুলেটর</h3>
+    <div class="field"><label>মাসিক জমা ৳</label><input id="dp_m" inputmode="numeric" value="1000"></div>
+    <div class="row"><div class="field"><label>মেয়াদ (বছর)</label><input id="dp_y" inputmode="numeric" value="5"></div>
+      <div class="field"><label>সুদ %</label><input id="dp_r" inputmode="decimal" value="8"></div></div>
+    <button class="btn primary" onclick="calcDps()">হিসাব করুন</button>
+    <div id="dp_out" style="margin-top:12px;"></div>
+  `);
+  if(t==='fdr')openSheet(`
+    <h3>FDR ক্যালকুলেটর</h3>
+    <div class="field"><label>আমানত ৳</label><input id="fd_p" inputmode="numeric" value="100000"></div>
+    <div class="row"><div class="field"><label>মেয়াদ (বছর)</label><input id="fd_y" inputmode="numeric" value="3"></div>
+      <div class="field"><label>সুদ %</label><input id="fd_r" inputmode="decimal" value="9"></div></div>
+    <button class="btn primary" onclick="calcFdr()">হিসাব করুন</button>
+    <div id="fd_out" style="margin-top:12px;"></div>
+  `);
+  if(t==='cash')openSheet(cashHtml());
+}
+function calcLoan(){
+  const p=U.cleanNum(document.getElementById('lc_p').value),r=U.cleanNum(document.getElementById('lc_r').value),n=U.cleanNum(document.getElementById('lc_n').value),t=document.getElementById('lc_t').value;
+  const res=t==='flat'?Calc.loanFlat(p,r,n):t==='emi'?Calc.loanEMI(p,r,n):Calc.loanDeclining(p,r,n);
+  document.getElementById('lc_out').innerHTML=`
+    <div class="kpi-grid">
+      <div class="kpi"><div class="lbl">প্রতি কিস্তি</div><div class="val">${Bn.money(res.installment)}</div></div>
+      <div class="kpi alt"><div class="lbl">মোট সুদ</div><div class="val">${Bn.money(res.interest)}</div></div>
+      <div class="kpi warn"><div class="lbl">মোট পরিশোধ</div><div class="val">${Bn.money(res.total)}</div></div>
+      <div class="kpi rose"><div class="lbl">মেয়াদ</div><div class="val">${Bn.num(n)}</div></div>
+    </div>`;
+}
+function calcDps(){const r=Calc.dps(U.cleanNum(document.getElementById('dp_m').value),U.cleanNum(document.getElementById('dp_y').value),U.cleanNum(document.getElementById('dp_r').value));
+  document.getElementById('dp_out').innerHTML=`<div class="kpi-grid"><div class="kpi"><div class="lbl">মোট জমা</div><div class="val">${Bn.money(r.deposited)}</div></div>
+    <div class="kpi alt"><div class="lbl">মোট সুদ</div><div class="val">${Bn.money(r.interest)}</div></div>
+    <div class="kpi warn" style="grid-column:1/-1;"><div class="lbl">মেয়াদপূর্তি</div><div class="val" style="font-size:24px;">${Bn.money(r.maturity)}</div></div></div>`;}
+function calcFdr(){const r=Calc.fdr(U.cleanNum(document.getElementById('fd_p').value),U.cleanNum(document.getElementById('fd_r').value),U.cleanNum(document.getElementById('fd_y').value));
+  document.getElementById('fd_out').innerHTML=`<div class="kpi-grid"><div class="kpi"><div class="lbl">মোট লাভ</div><div class="val">${Bn.money(r.profit)}</div></div>
+    <div class="kpi warn"><div class="lbl">মেয়াদপূর্তি</div><div class="val">${Bn.money(r.maturity)}</div></div></div>`;}
+function cashHtml(){
+  const dens=[1000,500,200,100,50,20,10,5,2,1];
+  return `<h3>ক্যাশ কাউন্টার</h3>
+  ${dens.map(d=>`<div class="cash-row"><div class="den">৳ ${Bn.num(d)}</div><input type="number" min="0" data-den="${d}" oninput="cashTotal()" placeholder="0"><div class="sub" id="cs_${d}">৳ ০</div></div>`).join('')}
+  <div class="divider"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(16,185,129,.1);border-radius:12px;">
+    <span style="font-weight:600;">সর্বমোট</span><span id="cs_total" style="font-size:22px;font-weight:800;font-family:Inter;">৳ ০</span>
+  </div>
+  <button class="btn" style="margin-top:10px;" onclick="cashReset()">রিসেট</button>`;
+}
+function cashTotal(){let t=0;document.querySelectorAll('[data-den]').forEach(inp=>{const d=+inp.dataset.den;const q=+inp.value||0;const s=d*q;document.getElementById('cs_'+d).textContent=Bn.money(s);t+=s;});document.getElementById('cs_total').textContent=Bn.money(t);}
+function cashReset(){document.querySelectorAll('[data-den]').forEach(i=>i.value='');cashTotal();}
+
+/* -------------------- Reports & PDF -------------------- */
+async function report(type){
+  await App.loadAll();
+  let title='',rows=[],head=[];
+  const today=U.startOfDay(),endT=U.endOfDay();
+  const weekAgo=Date.now()-7*86400000,monthAgo=Date.now()-30*86400000;
+  if(type==='daily'){title='দৈনিক সংগ্রহ — '+U.fmtDate();head=['সময়','সদস্য','ধরন','পরিমাণ'];
+    rows=App.transactions.filter(t=>t.t>=today&&t.t<=endT&&t.status==='completed').sort((a,b)=>a.t-b.t).map(t=>[U.fmtTime(t.t),t.memberName,t.type,t.amount]);}
+  else if(type==='weekly'){title='সাপ্তাহিক রিপোর্ট';head=['তারিখ','সদস্য','ধরন','পরিমাণ'];
+    rows=App.transactions.filter(t=>t.t>=weekAgo&&t.status==='completed').sort((a,b)=>b.t-a.t).map(t=>[U.fmtDate(t.t),t.memberName,t.type,t.amount]);}
+  else if(type==='monthly'){title='মাসিক রিপোর্ট';head=['তারিখ','সদস্য','ধরন','পরিমাণ'];
+    rows=App.transactions.filter(t=>t.t>=monthAgo&&t.status==='completed').sort((a,b)=>b.t-a.t).map(t=>[U.fmtDate(t.t),t.memberName,t.type,t.amount]);}
+  else if(type==='overdue'){title='ওভারডিউ রিপোর্ট';head=['কোড','নাম','দিন','বকেয়া','কিস্তি'];
+    const lastPay={};App.transactions.filter(t=>t.type==='installment'&&t.status==='completed').forEach(t=>{lastPay[t.memberId]=Math.max(lastPay[t.memberId]||0,t.t);});
+    rows=App.members.filter(m=>m.status==='active'&&(m.outstanding||0)>0&&(!lastPay[m.id]||lastPay[m.id]<weekAgo)).map(m=>[m.code,m.name,m.day,m.outstanding,Members.installmentAmount(m)]);}
+  else if(type==='ledger'){title='লেনদেন লেজার';head=['তারিখ','সদস্য','ধরন','পরিমাণ','স্ট্যাটাস'];
+    rows=App.transactions.sort((a,b)=>b.t-a.t).slice(0,500).map(t=>[U.fmtDate(t.t),t.memberName,t.type,t.amount,t.status]);}
+  else if(type==='audit'){title='অডিট লগ';head=['সময়','অ্যাকশন','বিবরণ'];
+    const aud=await DB.all('audit');rows=aud.sort((a,b)=>b.t-a.t).slice(0,300).map(a=>[U.fmtDT(a.t),a.action,a.detail||'']);}
+  const total=rows.reduce((s,r)=>s+(typeof r[3]==='number'?r[3]:0),0);
+  _currentReport={title,head,rows};
+  openSheet(`
+    <h3>${title}</h3>
+    <div class="muted" style="font-size:12px;margin-bottom:8px;">মোট রেকর্ড: ${Bn.num(rows.length)} ${typeof rows[0]?.[3]==='number'?' • মোট: <b>'+Bn.money(total)+'</b>':''}</div>
+    <div class="scroll-x"><table class="rep"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.length?rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${typeof c==='number'?'r':''}">${typeof c==='number'?Bn.money(c):U.esc(c)}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="'+head.length+'" class="center muted">কোনো ডেটা নেই</td></tr>'}</tbody>
+    </table></div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn" onclick="closeSheet()">বন্ধ</button>
+      <button class="btn primary" onclick="exportCurrentReportPDF()">📄 PDF</button>
+    </div>
+  `);
+}
+let _currentReport=null;
+function exportCurrentReportPDF(){
+  if(!_currentReport){toast('রিপোর্ট নেই','err');return;}
+  exportReportPDF(_currentReport.title,_currentReport.head,_currentReport.rows);
+}
+
+const _bnMap={'অ':'a','আ':'aa','ই':'i','ঈ':'ii','উ':'u','ঊ':'uu','ঋ':'ri','এ':'e','ঐ':'oi','ও':'o','ঔ':'ou','ক':'k','খ':'kh','গ':'g','ঘ':'gh','ঙ':'ng','চ':'ch','ছ':'chh','জ':'j','ঝ':'jh','ঞ':'n','ট':'T','ঠ':'Th','ড':'D','ঢ':'Dh','ণ':'N','ত':'t','থ':'th','দ':'d','ধ':'dh','ন':'n','প':'p','ফ':'ph','ব':'b','ভ':'bh','ম':'m','য':'j','র':'r','ল':'l','শ':'sh','ষ':'sh','স':'s','হ':'h','ড়':'r','ঢ়':'rh','য়':'y','ৎ':'t','ং':'ng','ঃ':'h','ঁ':'n','া':'a','ি':'i','ী':'ii','ু':'u','ূ':'uu','ৃ':'ri','ে':'e','ৈ':'oi','ো':'o','ৌ':'ou','্':'','ঁ':'n','০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9','৳':'Tk '};
+function bn2lat(s){return String(s==null?'':s).split('').map(c=>_bnMap[c]!==undefined?_bnMap[c]:c).join('');}
+
+function exportReportPDF(title,head,rows){
+  try{
+    if(!window.jspdf||!window.jspdf.jsPDF){toast('PDF লাইব্রেরি লোড হয়নি','err');return;}
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF({unit:'pt',format:'a4'});
+    const latTitle=bn2lat(title);
+    doc.setFont('helvetica','bold');doc.setFontSize(14);
+    doc.text('GB Helper PRO',40,40);
+    doc.setFontSize(11);doc.setFont('helvetica','normal');
+    doc.text(latTitle,40,60);
+    doc.setFontSize(9);doc.text('Generated: '+new Date().toLocaleString('en-GB'),40,75);
+    const latHead=head.map(h=>bn2lat(h));
+    const body=rows.map(r=>r.map(c=>typeof c==='number'?c.toLocaleString('en-IN'):bn2lat(c)));
+    if(typeof doc.autoTable!=='function'){toast('autoTable লোড হয়নি','err');return;}
+    doc.autoTable({startY:90,head:[latHead],body,styles:{font:'helvetica',fontSize:9,cellPadding:4,overflow:'linebreak'},headStyles:{fillColor:[16,185,129]},alternateRowStyles:{fillColor:[240,253,244]}});
+    const safe = latTitle.replace(/[^\w\-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60) || 'report';
+
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = safe + '.pdf';
+    a.style.display = 'none';
+
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(pdfUrl); } catch(e){} }, 1000);
+
+    DB.put('reports', { id: U.uid('rep'), title: title, generatedAt: U.now(), type: 'pdf', createdAt: U.now() });
+    Audit.log('report.pdf', title);
+    toast('PDF সংরক্ষিত', 'ok');
+  }catch(e){console.error('PDF error',e);toast('PDF তৈরি ব্যর্থ: '+(e.message||e),'err');}
+}
+async function exportFullPDF(){
+  try{
+    await App.loadAll();
+    const head=['Code','Name','Phone','Day','Savings','Outstanding','Status'];
+    const rows=App.members.map(m=>[m.code,m.name,m.phone||'',m.day,m.savings||0,m.outstanding||0,m.status]);
+    exportReportPDF('Full Member Database',head,rows);
+  }catch(e){toast('ত্রুটি: '+e.message,'err');}
+}
+async function printMemberStatement(id){
+  try{
+    const m=await DB.get('members',id);if(!m)return;
+    const txs=App.transactions.filter(t=>t.memberId===id).sort((a,b)=>a.t-b.t);
+    const head=['Date','Type','Amount','Sav.Bal','Loan.Bal','Status'];
+    const rows=txs.map(t=>[U.fmtDate(t.t),t.type,t.amount,t.newSavings||0,t.newOutstanding||0,t.status]);
+    exportReportPDF('Member Statement - '+(m.name||'')+' ('+(m.code||'')+')',head,rows);
+  }catch(e){toast('ত্রুটি: '+e.message,'err');}
+}
+
+/* -------------------- Import/Export -------------------- */
+async function exportJSON(){
+  try{
+    const data=await DB.snapshot();
+    const json=JSON.stringify(data,null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='sanchaysathi-backup-'+ (currentFirebaseUser ? currentFirebaseUser.uid : '') + '-' + U.iso()+'.json';
+    a.style.display='none';document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{try{document.body.removeChild(a);URL.revokeObjectURL(url);}catch(e){}},500);
+    Audit.log('export.json');toast('এক্সপোর্ট সম্পন্ন','ok');
+  }catch(e){console.error('exportJSON',e);toast('এক্সপোর্ট ব্যর্থ: '+(e.message||e),'err');}
+}
+async function importJSON(inp){
+  const f=inp&&inp.files&&inp.files[0];
+  if(!f){return;}
+  try{
+    if(!await verifyPinPrompt('ইম্পোর্ট JSON', 'ডেটা ইম্পোর্ট করতে আপনার পিন দিন।')) { inp.value=''; return; }
+    
+    const txt=await f.text();
+    let data;
+    try{data=JSON.parse(txt);}catch(pe){throw new Error('ফাইল সঠিক JSON নয়');}
+    if(!data||typeof data!=='object')throw new Error('ডেটা ফরম্যাট ভুল');
+    if(!confirm('ইম্পোর্ট মোড: বর্তমান ডেটা মুছে নতুন ডেটা বসবে। চালিয়ে যাবেন?')){inp.value='';return;}
+    await DB.restore(data,'replace');
+    await Settings.load();
+    Audit.log('import.json');
+    toast('ইম্পোর্ট সম্পন্ন','ok');
+    refreshAll();
+  }catch(e){console.error('importJSON',e);toast('ইম্পোর্ট ব্যর্থ: '+(e.message||e),'err');}
+  finally{try{inp.value='';}catch(e){}}
+}
+
+/* -------------------- Secure actions -------------------- */
+function askPin(title,sub){
+  return new Promise(res=>{
+    openSheet(`
+      <h3>${title}</h3>
+      <p class="muted" style="font-size:13px;">${sub||'আপনার পিন দিন'}</p>
+      <div class="field"><input id="_pinAsk" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="৪–৬ সংখ্যার পিন" /></div>
+      <div class="btn-row">
+        <button class="btn" onclick="closeSheet();window.__pinAskRes&&window.__pinAskRes(null);">বাতিল</button>
+        <button class="btn primary" onclick="(async()=>{const v=document.getElementById('_pinAsk').value;closeSheet();window.__pinAskRes&&window.__pinAskRes(v);})()">নিশ্চিত</button>
+      </div>
+    `);
+    window.__pinAskRes=(v)=>{window.__pinAskRes=null;res(v);};
+    setTimeout(()=>{const el=document.getElementById('_pinAsk');if(el)el.focus();},100);
+  });
+}
+
+async function verifyPinPrompt(title,sub){
+  if(!(await Auth.hasPin())){return confirm('পিন সেট নেই। চালিয়ে যাবেন?');}
+  const pin=await askPin(title,sub);
+  if(pin==null||pin==='')return false;
+  const ok=await Auth.verify(pin);
+  if(!ok){toast('ভুল পিন','err');return false;}
+  return true;
+}
+
+async function confirmDeleteMember(id){
+  const m=await DB.get('members',id);if(!m){toast('সদস্য নেই','err');return;}
+  if(!confirm('সদস্য "'+(m.name||'')+'" ডিলিট করবেন?\nএই কাজটি পূর্বাবস্থায় ফেরানো যাবেবিধা।'))return;
+  const ok=await verifyPinPrompt('সদস্য ডিলিট নিশ্চিতকরণ','অনুগ্রহ করে ডিলিট নিশ্চিত করতে আপনার পিন দিন।');
+  if(!ok)return;
+  try{
+    await Members.delete(id);
+    closeSheet();renderMembers();renderDash();
+    toast('সদস্য ডিলিট হয়েছে','ok');
+  }catch(e){toast('ডিলিট ব্যর্থ: '+e.message,'err');}
+}
+
+async function resetApp(){
+  if(!confirm('⚠️ সমস্ত ডেটা (সদস্য, লেনদেন, সেটিংস) মুছে যাবে। চালিয়ে যাবেন?'))return;
+  const ok=await verifyPinPrompt('সম্পূর্ণ রিসেট নিশ্চিতকরণ','সমস্ত ডেটা মুছতে আপনার পিন দিন।');
+  if(!ok)return;
+  if(!confirm('একদম শেষ সতর্কতা: এটি ফেরানো যাবে না। রিসেট করব?'))return;
+  try{
+    for(const s of DB.stores){
+      await DB.clear(s);
+    }
+    Audit.log('reset.all');
+    toast('সব ডেটা মোছা হয়েছে','ok');
+    setTimeout(()=>location.reload(),900);
+  }catch(e){toast('রিসেট ব্যর্থ: '+e.message,'err');}
+}
+
+/* -------------------- UI Refreshes -------------------- */
+async function refreshSettingsUI(){
+  if (App.currentScreen !== 'set') return;
+  const e=await Settings.get('gdEmail');
+  document.getElementById('gdStatus').textContent=Cloud.isReady()?'সংযুক্ত: '+(Cloud.EMAIL||e||'—'):(e?'পূর্বে সংযুক্ত ('+e+') — পুনরায় লগইন প্রয়োজন':'সংযুক্ত নয়');
+  document.getElementById('gdBtn').textContent=Cloud.isReady()?'বিচ্ছিন্ন':'সংযুক্ত করুন';
+  const ls=await Settings.get('gdLastSync');document.getElementById('gdLast').textContent='শেষ সিঙ্ক: '+(ls?U.fmtDT(ls):'কখনো না');
+  
+  if(currentFirebaseUser) {
+    const acctNameEl = document.getElementById('fbAcctName');
+    const acctEmailEl = document.getElementById('fbAcctEmail');
+    if(acctNameEl) acctNameEl.textContent = currentFirebaseUser.displayName || 'ব্যবহারকারী';
+    if(acctEmailEl) acctEmailEl.textContent = currentFirebaseUser.email || '';
+  }
+
+  const su=await DB.storageUse();
+  if(su)document.getElementById('storageInfo').textContent='স্টোরেজ: '+Math.round(su.used/1024)+' KB / '+Math.round(su.quota/1024/1024)+' MB';
+}
+function refreshAll(){
+  if(App.currentScreen === 'dash') renderDash();
+  if(App.currentScreen === 'mem') renderMembers();
+  if(App.currentScreen === 'col') renderCollection();
+  if(App.currentScreen === 'set') refreshSettingsUI();
+}
+
+/* -------------------- Theme Toggle -------------------- */
+function applyTheme(t){
+  if(t==='light'){document.body.classList.add('theme-light');}
+  else{document.body.classList.remove('theme-light');}
+  const ic=document.getElementById('themeIcon');
+  if(ic) ic.innerHTML = t==='light'
+    ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+async function toggleTheme(){
+  const cur=await Settings.get('theme','dark');
+  const nxt=cur==='light'?'dark':'light';
+  await Settings.set('theme',nxt);applyTheme(nxt);
+  toast(nxt==='light'?'লাইট মোড চালু':'ডার্ক মোড চালু','ok');
+}
+
+/* -------------------- Application Boot Flow -------------------- */
+function startPinSetup(){
+  pinMode='set';pinBuf='';pinTemp='';
+  document.getElementById('pinTitle').textContent='নতুন পিন সেট করুন';
+  document.getElementById('pinSub').textContent='সংবেদনশীল কাজের জন্য ৪–৬ সংখ্যার পিন দিন';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-pin').classList.add('active');
+  drawDots();
+}
+
+async function startAppFlow(){
+  try{
+    await DB.open();
+    await Settings.load();
+    
+    await FS.downloadAll(); // Initial Local Merge 
+    FS.startListeners(); // Open real-time pipe
+    
+    await App.loadAll();
+
+    Cloud.TOKEN = localStorage.getItem('gd_access_token' + Cloud.uidKey) || '';
+    Cloud.EXPIRES = parseInt(localStorage.getItem('gd_expire' + Cloud.uidKey) || '0');
+    Cloud.EMAIL = localStorage.getItem('gd_email' + Cloud.uidKey) || '';
+
+    if(Cloud.TOKEN && Date.now() < Cloud.EXPIRES){ setSync('ok'); }
+
+    applyTheme(await Settings.get('theme','dark'));
+    renderPinPad();
+    
+    const splash = document.getElementById('splash');
+    if (splash) splash.classList.add('hide');
+
+    if(await Auth.hasPin()){
+      enterApp();
+    } else {
+      startPinSetup();
+    }
+
+    if('serviceWorker' in navigator){
+      const swCode=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
+      const url=URL.createObjectURL(new Blob([swCode],{type:'application/javascript'}));
+      try{navigator.serviceWorker.register(url).catch(()=>{});}catch(e){}
+    }
+  }catch(e){console.error(e);toast('বুট ত্রুটি: '+e.message,'err');document.getElementById('splash').classList.add('hide');}
+}
+</script>
+
+<!-- ================= FIREBASE AUTH HANDLERS ================= -->
+<script>
+(function(){
+  const overlay = document.getElementById('fbAuthOverlay');
+  let bootStarted = false;
+
+  function show(id){
+    overlay.querySelectorAll('.fb-screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    overlay.querySelectorAll('.fb-msg').forEach(m=>{m.textContent='';m.className='fb-msg';});
+  }
+  overlay.addEventListener('click', e=>{
+    const go = e.target.getAttribute && e.target.getAttribute('data-go');
+    if(go){ show(go); return; }
+    const eye = e.target.getAttribute && e.target.getAttribute('data-eye');
+    if(eye){
+      const inp = document.getElementById(eye);
+      const isPw = inp.type === 'password';
+      inp.type = isPw ? 'text' : 'password';
+      e.target.textContent = isPw ? 'লুকান' : 'দেখান';
+    }
+  });
+
+  function msg(el, text, kind){
+    el.textContent = text || '';
+    el.className = 'fb-msg' + (kind ? ' '+kind : '');
+  }
+  
+  function friendly(err){
+    const code = (err && err.code) || '';
+    const map = {
+      'auth/invalid-email':'অবৈধ ইমেইল ঠিকানা',
+      'auth/user-not-found':'কোনো অ্যাকাউন্ট পাওয়া যায়নি',
+      'auth/wrong-password':'ভুল পাসওয়ার্ড দেওয়া হয়েছে',
+      'auth/invalid-credential':'ভুল ইমেইল বা পাসওয়ার্ড',
+      'auth/email-already-in-use':'এই ইমেইল ইতিমধ্যে ব্যবহৃত হচ্ছে',
+      'auth/weak-password':'পাসওয়ার্ড দুর্বল (কমপক্ষে ৬ অক্ষর প্রয়োজন)',
+      'auth/network-request-failed':'ইন্টারনেট সংযোগ নেই',
+      'auth/too-many-requests':'অনেক বেশি চেষ্টা করা হয়েছে — পরে আবার চেষ্টা করুন'
+    };
+    return map[code] || (err && err.message) || 'একটি অপ্রত্যাশিত ত্রুটি ঘটেছে';
+  }
+
+  function showOverlay(){
+    overlay.classList.add('on');
+    const sp = document.getElementById('splash'); if(sp) sp.classList.add('hide');
+  }
+  function hideOverlay(){ overlay.classList.remove('on'); }
+
+  function bindHandlers(){
+    document.getElementById('fbLoginBtn').onclick = async ()=>{
+      const m = document.getElementById('fbLoginMsg');
+      const email = document.getElementById('fbLoginEmail').value.trim();
+      const pass = document.getElementById('fbLoginPass').value;
+      if(!email || !pass){ msg(m,'দয়া করে ইমেইল ও পাসওয়ার্ড দিন','err'); return; }
+      const btn = document.getElementById('fbLoginBtn'); btn.disabled=true; btn.textContent='অপেক্ষা করুন…';
+      try{
+        await window.__fb.signInWithEmailAndPassword(window.__fb.auth, email, pass);
+        msg(m,'লগইন সফল','ok');
+      }catch(e){ msg(m, friendly(e), 'err'); }
+      finally{ btn.disabled=false; btn.textContent='লগইন করুন'; }
+    };
+    
+    document.getElementById('fbRegBtn').onclick = async ()=>{
+      const m = document.getElementById('fbRegMsg');
+      const name = document.getElementById('fbRegName').value.trim();
+      const email = document.getElementById('fbRegEmail').value.trim();
+      const p1 = document.getElementById('fbRegPass').value;
+      const p2 = document.getElementById('fbRegPass2').value;
+      
+      if(!name){ msg(m,'দয়া করে আপনার পূর্ণ নাম দিন','err'); return; }
+      if(!email){ msg(m,'দয়া করে ইমেইল দিন','err'); return; }
+      if(p1.length < 6){ msg(m,'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','err'); return; }
+      if(p1 !== p2){ msg(m,'পাসওয়ার্ড দুটি মেলেনি','err'); return; }
+      
+      const btn = document.getElementById('fbRegBtn'); btn.disabled=true; btn.textContent='অ্যাকাউন্ট তৈরি হচ্ছে…';
+      try{
+        const cred = await window.__fb.createUserWithEmailAndPassword(window.__fb.auth, email, p1);
+        try{ await window.__fb.updateProfile(cred.user, { displayName: name }); }catch(_){}
+        msg(m,'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে','ok');
+      }catch(e){ msg(m, friendly(e), 'err'); }
+      finally{ btn.disabled=false; btn.textContent='অ্যাকাউন্ট তৈরি করুন'; }
+    };
+    
+    document.getElementById('fbFpBtn').onclick = async ()=>{
+      const m = document.getElementById('fbFpMsg');
+      const email = document.getElementById('fbFpEmail').value.trim();
+      if(!email){ msg(m,'দয়া করে ইমেইল দিন','err'); return; }
+      const btn = document.getElementById('fbFpBtn'); btn.disabled=true; btn.textContent='লিংক পাঠানো হচ্ছে…';
+      try{
+        await window.__fb.sendPasswordResetEmail(window.__fb.auth, email);
+        msg(m,'রিসেট লিংক আপনার ইমেইলে পাঠানো হয়েছে','ok');
+      }catch(e){ msg(m, friendly(e), 'err'); }
+      finally{ btn.disabled=false; btn.textContent='রিসেট লিংক পাঠান'; }
+    };
+  }
+
+  function init(){
+    bindHandlers();
+    
+    window.__fb.onAuthStateChanged(window.__fb.auth, async (user)=>{
+      currentFirebaseUser = user;
+      
+      if(user){
+        DB.initForUser(user.uid);
+        Cloud.FILE_NAME = 'GBHelper_' + user.uid + '.json';
+        hideOverlay();
+        
+        if(!bootStarted) {
+            bootStarted = true;
+            await startAppFlow();
+        } else {
+            await startAppFlow();
+        }
+      }else{
+        FS.stopListeners();
+        if(bootStarted){ location.reload(); }
+        else{ show('fbScrLogin'); showOverlay(); }
+      }
+    });
+  }
+  
+  if(window.__fb) init();
+  else window.addEventListener('fb-ready', init, { once:true });
+})();
+</script>
+</body>
+</html>
